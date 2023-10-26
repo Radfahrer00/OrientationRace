@@ -9,10 +9,11 @@
 
     <ImageView
         android:id="@+id/myImageView"
+        android:layout_marginTop="20px"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@drawable/image"
-        android:layout_gravity="top" />
+        android:layout_gravity="top"
+        android:src="@drawable/image" />
 
     <TextView
         android:id="@+id/welcomeText"
@@ -20,18 +21,36 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
         android:gravity="center"
+        android:layout_gravity="center"
         android:text="@string/main_msg"
         android:textSize="20sp"
         android:textStyle="bold"/>
 
-    <EditText
-        android:id="@+id/usernameInput"
-        android:layout_width="250dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="130dp"
-        android:layout_gravity="center"
-        android:autofillHints="Enter your username"
-        android:inputType="text"/>
+    <LinearLayout
+        android:layout_marginTop="80dp"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        tools:context=".MainActivity">
+
+        <TextView
+            android:id="@+id/usernameText"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="Type in your username:"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/usernameInput"
+            android:layout_width="220dp"
+            android:layout_height="60dp"
+            android:background="@drawable/username_background"
+            android:autofillHints="Enter your username"
+            android:inputType="text"/>
+    </LinearLayout>
 
     <Button
         android:id="@+id/buttonEnterRace"
