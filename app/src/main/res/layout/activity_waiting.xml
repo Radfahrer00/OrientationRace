@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
         android:gravity="center"
-        android:text="Welcome to the Madrid Orientation Race 2023!"
+        android:text="@string/main_msg"
         android:textSize="20sp"
         android:textStyle="bold"/>
 
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
         android:gravity="center"
-        android:text="Please wait, the race will start very soon. Be ready. "
+        android:text="@string/waiting_msg"
         android:textSize="20sp"
         android:textStyle="bold"/>
 
@@ -34,7 +34,7 @@
         android:layout_height="70dp"
         android:layout_marginTop="100dp"
         android:gravity="center"
-        android:text="Exit"
+        android:text="@string/button_exit_text"
         android:textSize="30sp"/>
 
 
