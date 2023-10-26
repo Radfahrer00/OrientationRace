@@ -2,10 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
+    android:background="#dcdcdc"
     tools:context=".MainActivity">
+
+    <ImageView
+        android:id="@+id/myImageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/image"
+        android:layout_gravity="top"/>
 
     <TextView
         android:id="@+id/welcomeText"
@@ -13,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="80dp"
         android:gravity="center"
-        android:text="Welcome to the Madrid Orientation Race 2023!"
+        android:text="@string/main_msg"
         android:textSize="20sp"
         android:textStyle="bold"/>
 
@@ -21,7 +29,7 @@
         android:id="@+id/usernameInput"
         android:layout_width="250dp"
         android:layout_height="60dp"
-        android:layout_marginTop="250dp"
+        android:layout_marginTop="180dp"
         android:gravity="center"
         android:autofillHints="Enter your username"
         android:inputType="text"/>
