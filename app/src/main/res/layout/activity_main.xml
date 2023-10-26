@@ -61,6 +61,4 @@
         android:text="Enter Race"
         android:textSize="30sp"/>
 
-
-
 </LinearLayout>
