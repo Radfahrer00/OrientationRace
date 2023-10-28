@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.example.orientationrace.CompassView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/compassView"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+</com.example.orientationrace.CompassView>
