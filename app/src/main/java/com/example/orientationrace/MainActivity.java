@@ -9,11 +9,35 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.Calendar;
+
+import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.DisconnectedBufferOptions;
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+
+
 public class MainActivity extends AppCompatActivity {
 
+    // UI Elements
     Button bEnterRace;
     EditText usernameText;
     boolean usernameTyped;
+
+    // MQTT Connection
+    final String serverUri = "tcp://192.168.56.1:1883";
+    final String subscriptionTopic = "broker/topic";
+    String publishTopic = "androidClient/topic";
+    String publishMessage;
+    MqttAndroidClient mqttAndroidClient;
+    String clientId;
+    String lastWillMessage;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
                 // Create an Intent to start the waiting room activity
                 Intent intent = new Intent(MainActivity.this, WaitingRoomActivity.class);
                 startActivity(intent);
+                clientId = usernameText.getText().toString();
+                publishTopic = clientId + "/topic";
+                lastWillMessage = "Client " + clientId + " disconnected!";
             }
         });
     }
@@ -57,5 +84,42 @@ public class MainActivity extends AppCompatActivity {
 
         // Show the popup
         popupDialog.show();
+    }
+
+
+    public void subscribeToTopic() {
+        try {
+            mqttAndroidClient.subscribe(subscriptionTopic, 0, null, new IMqttActionListener() {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    //addToHistory("Subscribed to: " + subscriptionTopic);
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    //addToHistory("Failed to subscribe");
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+            //addToHistory(e.toString());
+        }
+    }
+
+    public void publishMessage() {
+        MqttMessage message = new MqttMessage();
+        message.setPayload(publishMessage.getBytes());
+        message.setRetained(false);
+        message.setQos(0);
+        try {
+            mqttAndroidClient.publish(publishTopic, message);
+            //addToHistory("Message Published");
+        } catch (Exception e) {
+            e.printStackTrace();
+            //addToHistory(e.toString());
+        }
+        if (!mqttAndroidClient.isConnected()) {
+            //addToHistory("Client not connected!");
+        }
     }
 }
