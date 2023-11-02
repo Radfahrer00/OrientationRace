@@ -1,7 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.example.orientationrace.CompassView
+<!--<com.example.orientationrace.CompassView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/compassView"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
-</com.example.orientationrace.CompassView>
+</com.example.orientationrace.CompassView> -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/compassImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/bousole" />
+
+    <ImageView
+        android:id="@+id/Aigille"
+        android:layout_width="197dp"
+        android:layout_height="465dp"
+        android:layout_centerInParent="true"
+        android:rotation="0"
+        android:scaleType="center"
+        android:src="@drawable/aigui" />
+    </RelativeLayout>
