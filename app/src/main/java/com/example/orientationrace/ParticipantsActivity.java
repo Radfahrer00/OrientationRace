@@ -15,6 +15,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -32,6 +38,7 @@ public class ParticipantsActivity extends AppCompatActivity {
     private static final String CONTENT_TYPE_JSON = "application/json";
     private TextView text;
     ExecutorService es;
+    JSONObject jsonObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,10 +83,25 @@ public class ParticipantsActivity extends AppCompatActivity {
         public void handleMessage(@NonNull Message msg) {
             // message received from background thread: load complete (or failure)
             String string_result;
+            String titleArray[] = new String[204];
             super.handleMessage(msg);
             Log.d(LOADWEBTAG, threadAndClass + ": message received from background thread");
             if((string_result = msg.getData().getString("text")) != null) {
-                text.setText(string_result);
+                //text.setText(string_result);
+                try {
+                    jsonObject = new JSONObject(string_result);
+                    JSONArray graph = jsonObject.getJSONArray("@graph");
+                    for (int i = 0; i < graph.length(); i++) {
+                        JSONObject graphItem = graph.getJSONObject(i);
+                        if (graphItem.has("title")) {
+                            String titleValue = graphItem.getString("title");
+                            titleArray[i] = titleValue;
+                        }
+                    }
+                text.setText(Arrays.toString(titleArray));
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     };
