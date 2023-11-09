@@ -5,25 +5,41 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 </com.example.orientationrace.CompassView> -->
-
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
 
-    <ImageView
-        android:id="@+id/compassImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:scaleType="fitCenter"
-        android:src="@drawable/bousole" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chechpointsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginTop="25dp" />
 
-    <ImageView
-        android:id="@+id/Aigille"
-        android:layout_width="197dp"
-        android:layout_height="465dp"
-        android:layout_centerInParent="true"
-        android:rotation="0"
-        android:scaleType="center"
-        android:src="@drawable/aigui" />
-    </RelativeLayout>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:layout_marginTop="30dp">
+
+        <ImageView
+            android:id="@+id/compassImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/bousole" />
+
+        <ImageView
+            android:id="@+id/Aigille"
+            android:layout_width="197dp"
+            android:layout_height="465dp"
+            android:layout_centerInParent="true"
+            android:rotation="0"
+            android:scaleType="center"
+            android:src="@drawable/aigui" />
+        </RelativeLayout>
+</LinearLayout>

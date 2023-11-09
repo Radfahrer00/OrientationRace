@@ -19,7 +19,7 @@
     <TextView
         android:id="@+id/welcomeText"
         android:layout_width="222dp"
-        android:layout_height="67dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="80dp"
         android:gravity="center"

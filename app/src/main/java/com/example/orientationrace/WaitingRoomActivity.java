@@ -7,10 +7,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class WaitingRoomActivity extends AppCompatActivity {
 
     Button bQuitRace;
+    TextView welcomeText;
     private Handler handler = new Handler();
     private Runnable launchDelayedActivity;
     @Override
@@ -20,6 +22,14 @@ public class WaitingRoomActivity extends AppCompatActivity {
 
         // Get references to UI elements
         bQuitRace = findViewById(R.id.buttonQuitRace);
+        welcomeText = findViewById(R.id.welcomeText);
+
+        // Create the get Intent object
+        Intent intent = getIntent();
+        // Receive the username
+        String username = intent.getStringExtra("username");
+        // Welcome the user to the Race
+        welcomeText.setText("Hello " + username +"\n" + "Welcome to the Madrid Orientation Race 2023!");
 
         // Initialize the Runnable to launch DelayedActivity, the activity where participants are shown
         launchDelayedActivity = new Runnable() {
@@ -27,6 +37,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
             public void run() {
                 // Start the DelayedActivity
                 Intent intent = new Intent(WaitingRoomActivity.this, ParticipantsActivity.class);
+                intent.putExtra("username", username);
                 startActivity(intent);
                 finish(); // Close the current (second) activity
             }
