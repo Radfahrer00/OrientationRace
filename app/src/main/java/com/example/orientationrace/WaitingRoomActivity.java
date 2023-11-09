@@ -44,7 +44,7 @@ public class WaitingRoomActivity extends AppCompatActivity {
         };
 
         // Post the Runnable with a 10-second delay
-        handler.postDelayed(launchDelayedActivity, 5000); // 10000 milliseconds (10 seconds)
+        handler.postDelayed(launchDelayedActivity, 2000); // 10000 milliseconds (10 seconds)
 
         // Set a click listener for the Quit Race button to navigate back to the main activity
         bQuitRace.setOnClickListener(new View.OnClickListener() {

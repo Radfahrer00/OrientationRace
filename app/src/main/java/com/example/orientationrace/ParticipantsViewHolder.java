@@ -1,20 +1,19 @@
 package com.example.orientationrace;
 
-import android.graphics.Color;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-public class MyViewHolder extends RecyclerView.ViewHolder {
+public class ParticipantsViewHolder extends RecyclerView.ViewHolder {
 
     // Holds references to individual participant views
     TextView username;
 
-    private static final String TAG = "TAGListOfParticipants, MyViewHolder";
+    private static final String TAG = "TAGListOfParticipants, ParticipantsViewHolder";
 
-    public MyViewHolder(View itemView) {
+    public ParticipantsViewHolder(View itemView) {
         super(itemView);
         username = itemView.findViewById(R.id.username);
     }

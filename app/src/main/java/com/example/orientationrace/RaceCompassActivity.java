@@ -1,6 +1,7 @@
 package com.example.orientationrace;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -11,8 +12,21 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.orientationrace.gardens.Garden;
+import com.example.orientationrace.gardens.GardensAdapter;
+import com.example.orientationrace.gardens.GardensDataset;
 
 public class RaceCompassActivity extends AppCompatActivity implements SensorEventListener {
+
+    // Gardens dataset:
+    private static final String TAG = "TAGListOfGardens, GardenActivity";
+    public GardensDataset gardensDataset = new GardensDataset();
+    private RecyclerView recyclerView;
 
     private ImageView compassImage;
     private SensorManager sensorManager;
@@ -25,6 +39,18 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_race_compass);
+
+        // Create the get Intent object
+        Intent intent = getIntent();
+        // Receive the username
+        String[] gardenNames = intent.getStringArrayExtra("gardenNames");
+
+        for (int i = 0; i < gardenNames.length; i++) {
+            Garden garden = new Garden(gardenNames[i], (long) i);
+            gardensDataset.addGarden(garden);
+        }
+
+        initRecyclerView();
 
         compassImage = findViewById(R.id.compassImageView);
 
@@ -80,5 +106,17 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // Gérer les changements d'exactitude des capteurs si nécessaire.
+    }
+
+    private void initRecyclerView() {
+        // Prepare the RecyclerView:
+        recyclerView = findViewById(R.id.gardensRecyclerView);
+        GardensAdapter recyclerViewAdapter = new GardensAdapter(gardensDataset);
+        recyclerView.setAdapter(recyclerViewAdapter);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        // Choose the layout manager to be set.
+        // by default, a linear layout is chosen:
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
     }
 }

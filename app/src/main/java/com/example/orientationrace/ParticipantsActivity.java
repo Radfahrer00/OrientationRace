@@ -20,7 +20,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
-import java.util.Iterator;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -39,6 +41,7 @@ public class ParticipantsActivity extends AppCompatActivity {
     private TextView text;
     ExecutorService es;
     JSONObject jsonObject;
+    String[] randomGardensArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,38 +74,81 @@ public class ParticipantsActivity extends AppCompatActivity {
             public void run() {
                 // Create an Intent to launch the new activity
                 Intent intent = new Intent(ParticipantsActivity.this, RaceCompassActivity.class);
+                intent.putExtra("gardenNames", randomGardensArray);
                 startActivity(intent);
                 finish(); // Optional: finish the current activity
             }
-        }, 35000); // 10000 milliseconds = 10 seconds
+        }, 10000); // 10000 milliseconds = 10 seconds
     }
 
     // Define the handler that will receive the messages from the background thread:
     Handler handler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
-            // message received from background thread: load complete (or failure)
-            String string_result;
-            String titleArray[] = new String[204];
             super.handleMessage(msg);
-            Log.d(LOADWEBTAG, threadAndClass + ": message received from background thread");
-            if((string_result = msg.getData().getString("text")) != null) {
-                //text.setText(string_result);
-                try {
-                    jsonObject = new JSONObject(string_result);
-                    JSONArray graph = jsonObject.getJSONArray("@graph");
-                    for (int i = 0; i < graph.length(); i++) {
-                        JSONObject graphItem = graph.getJSONObject(i);
-                        if (graphItem.has("title")) {
-                            String titleValue = graphItem.getString("title");
-                            titleArray[i] = titleValue;
-                        }
-                    }
-                text.setText(Arrays.toString(titleArray));
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
+            Log.d(LOADWEBTAG, threadAndClass + ": message received from the background thread");
+
+            if (msg.getData() != null) {
+                String string_result = msg.getData().getString("text");
+                if (string_result != null) {
+                    processJsonData(string_result);
                 }
             }
+        }
+
+        private void processJsonData(String jsonData) {
+            try {
+                jsonObject = new JSONObject(jsonData);
+                JSONArray graph = jsonObject.getJSONArray("@graph");
+                String[] gardenTitlesArray = extractTitlesFromJson(graph);
+                randomGardensArray = getRandomGardens(gardenTitlesArray);
+
+                text.setText(Arrays.toString(randomGardensArray));
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        /**
+         * Extracts titles from a JSON array and stores them in a string array.
+         * @param jsonArray A JSON array containing objects to extract titles from.
+         * @return An array of titles extracted from the JSON array.
+         * @throws JSONException If there is an error in JSON parsing.
+         */
+        private String[] extractTitlesFromJson(JSONArray jsonArray) throws JSONException {
+            String[] titleArray = new String[jsonArray.length()];
+
+            // Iterate through the JSON array to extract titles.
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject graphItem = jsonArray.getJSONObject(i);
+                if (graphItem.has("title")) {
+                    // Extract and store the title in the titleArray.
+                    titleArray[i] = graphItem.getString("title");
+                }
+            }
+            return titleArray;
+        }
+
+        /**
+         * Generates an array of random gardens by selecting unique elements from the original garden array.
+         * @param originalGardensArray An array containing the source garden elements.
+         * @return An array of 6 unique random garden names.
+         */
+        private String[] getRandomGardens(String[] originalGardensArray) {
+            String[] randomGardensArray = new String[6];
+            Random random = new Random();
+            // Create a set to keep track of selected indices to ensure uniqueness.
+            Set<Integer> selectedIndices = new HashSet<>();
+
+            // Generate 6 unique random indices and select corresponding garden names.
+            while (selectedIndices.size() < 6) {
+                int randomIndex = random.nextInt(originalGardensArray.length);
+
+                if (selectedIndices.add(randomIndex)) {
+                    randomGardensArray[selectedIndices.size() - 1] = originalGardensArray[randomIndex];
+                }
+            }
+            return randomGardensArray;
         }
     };
 
@@ -117,7 +163,7 @@ public class ParticipantsActivity extends AppCompatActivity {
     private void initRecyclerView() {
         // Prepare the RecyclerView:
         recyclerView = findViewById(R.id.recyclerView);
-        MyAdapter recyclerViewAdapter = new MyAdapter(participantsDataset);
+        ParticipantsAdapter recyclerViewAdapter = new ParticipantsAdapter(participantsDataset);
         recyclerView.setAdapter(recyclerViewAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
