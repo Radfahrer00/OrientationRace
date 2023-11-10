@@ -1,5 +1,6 @@
 package com.example.orientationrace;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -7,14 +8,15 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.orientationrace.gardens.Garden;
@@ -35,6 +37,8 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
 
     private float currentDegree = 0f;
 
+    final GardensAdapter gardensAdapter = new GardensAdapter(gardensDataset, this);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +55,14 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
         }
 
         initRecyclerView();
+
+        // Applying OnLongClickListener to our Adapter
+        gardensAdapter.setOnLongClickListener(new GardensAdapter.OnLongClickListener() {
+            @Override
+            public void onLongClick(int position, Garden garden) {
+                showPopup(position);
+            }
+        });
 
         compassImage = findViewById(R.id.compassImageView);
 
@@ -111,12 +123,47 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
     private void initRecyclerView() {
         // Prepare the RecyclerView:
         recyclerView = findViewById(R.id.gardensRecyclerView);
-        GardensAdapter recyclerViewAdapter = new GardensAdapter(gardensDataset);
+        GardensAdapter recyclerViewAdapter = new GardensAdapter(gardensDataset, this);
         recyclerView.setAdapter(recyclerViewAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         // Choose the layout manager to be set.
         // by default, a linear layout is chosen:
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+    }
+
+    // Method to show a Popup window requesting the user to confirm the checkpoint
+    public void showPopup(int position) {
+        // Create a Dialog object
+        Dialog popupDialog = new Dialog(this);
+
+        // Set the content view to the layout created for the popup
+        popupDialog.setContentView(R.layout.garden_reached_confirmation_popup);
+
+        // Get reference to the "Cancel" button in the popup layout and add onClick Listener
+        Button bCancel = popupDialog.findViewById(R.id.buttonCancel);
+        bCancel.setOnClickListener(v -> {
+            // Close popup when the button is clicked
+            popupDialog.dismiss();
+        });
+
+        // Get reference to the "Confirm" button in the popup layout and add onClick Listener
+        Button bConfirm = popupDialog.findViewById(R.id.buttonConfirm);
+        bConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Update the clicked state for the item
+                gardensAdapter.itemClickedState[position] = true;
+
+                // Notify the adapter that the data set has changed
+                gardensAdapter.notifyItemChanged(position);
+
+                // Dismiss the popup window
+                popupDialog.dismiss();
+            }
+        });
+
+        // Show the popup
+        popupDialog.show();
     }
 }

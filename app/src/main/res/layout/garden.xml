@@ -6,6 +6,8 @@
     card_view:cardCornerRadius="10dp"
     card_view:cardElevation="10dp"
     android:layout_margin="3dp"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
     >
 
     <LinearLayout
@@ -21,7 +23,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Placeholder for title"
-            android:textSize="15dp"
+            android:textSize="15sp"
             android:layout_gravity="center" />
 
 

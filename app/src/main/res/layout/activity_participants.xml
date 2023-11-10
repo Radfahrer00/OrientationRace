@@ -45,18 +45,12 @@
         android:layout_marginTop="25dp"
         android:src="@drawable/run2" />
 
-    <ScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:scrollbars="vertical" >
 
-        <TextView
-            android:id="@+id/HTTPTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="" />
-    </ScrollView>
+    <TextView
+        android:id="@+id/HTTPTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="" />
 
 </LinearLayout>
 
