@@ -9,6 +9,8 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.orientationrace.activities.WaitingRoomActivity;
+
 public class MainActivity extends AppCompatActivity {
 
     // UI Elements

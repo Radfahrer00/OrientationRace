@@ -1,10 +1,13 @@
-package com.example.orientationrace;
+package com.example.orientationrace.participants;
 
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.orientationrace.R;
+import com.example.orientationrace.participants.Participant;
 
 public class ParticipantsViewHolder extends RecyclerView.ViewHolder {
 

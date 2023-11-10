@@ -1,4 +1,4 @@
-package com.example.orientationrace;
+package com.example.orientationrace.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,11 +9,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.orientationrace.MainActivity;
+import com.example.orientationrace.R;
+
 public class WaitingRoomActivity extends AppCompatActivity {
 
     Button bQuitRace;
     TextView welcomeText;
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
     private Runnable launchDelayedActivity;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

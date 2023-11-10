@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import com.example.orientationrace.activities.ParticipantsActivity;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;

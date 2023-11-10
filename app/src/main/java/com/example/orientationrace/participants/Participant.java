@@ -1,4 +1,4 @@
-package com.example.orientationrace;
+package com.example.orientationrace.participants;
 
 public class Participant {
     // This class contains the actual data of each Participant of the dataset
@@ -6,7 +6,7 @@ public class Participant {
     private String username; ; // Username of the participant
     private Long key; // In this app we use keys of type Long
 
-    Participant(String username, Long key) {
+    public Participant(String username, Long key) {
         this.username = username;
         this.key = key;
     }

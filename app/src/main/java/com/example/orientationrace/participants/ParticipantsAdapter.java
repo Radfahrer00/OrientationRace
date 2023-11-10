@@ -1,4 +1,4 @@
-package com.example.orientationrace;
+package com.example.orientationrace.participants;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.orientationrace.R;
 
 public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsViewHolder> {
 

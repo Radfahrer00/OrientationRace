@@ -1,7 +1,5 @@
 package com.example.orientationrace.gardens;
 
-import com.example.orientationrace.Participant;
-
 public class Garden {
     // This class contains the actual data of each Garden of the dataset
 

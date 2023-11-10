@@ -12,11 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.orientationrace.Participant;
-import com.example.orientationrace.ParticipantsDataset;
-import com.example.orientationrace.ParticipantsViewHolder;
 import com.example.orientationrace.R;
-import com.example.orientationrace.RaceCompassActivity;
 
 import java.util.Arrays;
 

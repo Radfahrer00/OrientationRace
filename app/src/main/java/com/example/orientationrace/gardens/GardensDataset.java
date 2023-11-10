@@ -2,8 +2,6 @@ package com.example.orientationrace.gardens;
 
 import android.util.Log;
 
-import com.example.orientationrace.Participant;
-
 import java.util.ArrayList;
 import java.util.List;
 

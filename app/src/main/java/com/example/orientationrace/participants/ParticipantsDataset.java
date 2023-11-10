@@ -1,6 +1,8 @@
-package com.example.orientationrace;
+package com.example.orientationrace.participants;
 
 import android.util.Log;
+
+import com.example.orientationrace.participants.Participant;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +14,7 @@ public class ParticipantsDataset {
     private static final String TAG = "TAGlistOfParticipants, ParticipantsDataset";
     private List<Participant> listOfParticipants;
 
-    ParticipantsDataset() {
+    public ParticipantsDataset() {
         Log.d(TAG, "ParticipantsDataset() called");
         listOfParticipants = new ArrayList<>();
     }
@@ -21,7 +23,7 @@ public class ParticipantsDataset {
         return listOfParticipants.size();
     }
 
-    void addParticipant(Participant participant) {
+    public void addParticipant(Participant participant) {
         listOfParticipants.add(participant);
     }
 

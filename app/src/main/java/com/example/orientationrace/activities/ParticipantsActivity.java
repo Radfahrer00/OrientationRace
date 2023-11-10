@@ -1,4 +1,4 @@
-package com.example.orientationrace;
+package com.example.orientationrace.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +14,13 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+
+import com.example.orientationrace.LoadURLContents;
+import com.example.orientationrace.MqttHandler;
+import com.example.orientationrace.participants.Participant;
+import com.example.orientationrace.participants.ParticipantsAdapter;
+import com.example.orientationrace.participants.ParticipantsDataset;
+import com.example.orientationrace.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -43,6 +50,11 @@ public class ParticipantsActivity extends AppCompatActivity {
     JSONObject jsonObject;
     String[] randomGardensArray;
 
+    // MQTT Connection
+    private String client_Id;
+    private MqttHandler mqttHandler;
+    final String subscriptionTopic = "race/participants";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Build the logTag with the Thread and Class names:
@@ -56,6 +68,12 @@ public class ParticipantsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         // Receive the username
         String username = intent.getStringExtra("username");
+        client_Id = username; // For MQTT
+
+        // MQTT Connection
+        //mqttHandler = new MqttHandler();
+        //mqttHandler.connect(SERVER_URI, client_Id);
+
 
         // Create the current user as a new participant and add him to the dataset
         Participant currentParticipant = new Participant(username, (long)0);
@@ -171,4 +189,13 @@ public class ParticipantsActivity extends AppCompatActivity {
         // by default, a linear layout is chosen:
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
+
+    private void publishMessage(String topic, String message) {
+        mqttHandler.publish(topic, message);
+    }
+
+    private void subscribeToTopic(String topic) {
+        mqttHandler.subscribe(topic);
+    }
+
 }
