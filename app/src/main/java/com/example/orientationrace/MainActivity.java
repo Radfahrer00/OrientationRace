@@ -9,6 +9,7 @@ import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.orientationrace.activities.ParticipantsActivity;
 import com.example.orientationrace.activities.WaitingRoomActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
                 showPopup(v);
             } else {
                 // Create an Intent to start the waiting room activity
-                Intent intent = new Intent(MainActivity.this, WaitingRoomActivity.class);
+                Intent intent = new Intent(MainActivity.this, ParticipantsActivity.class);
                 intent.putExtra("username", usernameText.getText().toString()); // Send the username to the next activity
                 startActivity(intent);
             }

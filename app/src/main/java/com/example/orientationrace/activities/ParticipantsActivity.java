@@ -51,7 +51,8 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
     private static final String URL_GARDENS = "https://short.upm.es/3qnno";
     private static final String CONTENT_TYPE_JSON = "application/json";
     private TextView text;
-    ExecutorService es;
+    ExecutorService downloadExecutor;
+    ExecutorService mqttExecutor;
     JSONObject jsonObject;
     String[] randomGardensArray;
 
@@ -60,7 +61,26 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
     private static final String TOPIC_PARTICIPANTS = "madridOrientationRace/participants";
     private String client_Id;
     private MqttManager mqttManager;
+    private Handler checkConditionsHandler = new Handler();
+    private static final int CHECK_CONDITIONS_INTERVAL = 30000; // 3 seconds
 
+    private Runnable checkConditionsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (participantsDataset.getSize() >= 1 && randomGardensArray != null && randomGardensArray.length != 0) {
+                // Create an Intent to launch the new activity
+                Intent newIntent = new Intent(ParticipantsActivity.this, RaceCompassActivity.class);
+                newIntent.putExtra("gardenNames", randomGardensArray);
+                startActivity(newIntent);
+
+                // Finish the current activity if needed
+                finish();
+            } else {
+                // Conditions not met, schedule the next check
+                checkConditionsHandler.postDelayed(this, CHECK_CONDITIONS_INTERVAL);
+            }
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Build the logTag with the Thread and Class names:
@@ -85,46 +105,61 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
         initRecyclerView();
 
         // Create an executor for the background tasks:
-        es = Executors.newSingleThreadExecutor();
-        readJSON(text);
+        downloadExecutor = Executors.newSingleThreadExecutor();
+        // Submit download-related tasks to the download executor
+        downloadExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                readJSON(text);
+            }
+        });
 
-        // Get the singleton instance of MqttManager.
+
+        mqttExecutor = Executors.newSingleThreadExecutor();
         mqttManager = MqttManager.getInstance();
-        // Connect to the MQTT broker when the activity starts.
-        try {
-            mqttManager.connect(client_Id);
-            Log.d(MQTTCONNECTION, "Connection succesfull");
-        } catch (MqttException e) {
-            Log.d(MQTTCONNECTION, "No Connection");
-            e.printStackTrace();
-        }
+        Log.d(MQTTCONNECTION, "Handler defined");
+        // Submit the MQTT-related tasks to the executor for background execution
+        mqttExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                Log.d(MQTTCONNECTION, "Starting MQTT Thread");
+                // Connect to the MQTT broker when the activity starts.
+                mqttManager.connect(client_Id);
+                Log.d(MQTTCONNECTION, "Connected");
+                subscribeToTopic();
+                publishConnection();
+            }
+        });
 
-        try {
-            mqttManager.subscribeToTopic(TOPIC_PARTICIPANTS, this);
-            Log.d(MQTTCONNECTION, "Subscription succesfull");
-        } catch (MqttException e) {
-            Log.d(MQTTCONNECTION, "No Subscription");
-        }
+        checkConditionsHandler.postDelayed(checkConditionsRunnable, CHECK_CONDITIONS_INTERVAL);
+    }
 
+    @Override
+    protected void onDestroy() {
+        // Remove the callback when the activity is destroyed to avoid memory leaks
+        checkConditionsHandler.removeCallbacks(checkConditionsRunnable);
+        super.onDestroy();
+    }
+
+    private void publishConnection() {
         try {
             mqttManager.publishMessage(TOPIC_PARTICIPANTS, client_Id);
-            Log.d(MQTTCONNECTION, "Publishing succesfull");
+            Log.d(MQTTCONNECTION, "Publishing successful");
         } catch (MqttException e) {
             Log.d(MQTTCONNECTION, "No Publishing");
         }
+    }
 
+    private void subscribeToTopic() {
+        try {
+            mqttManager.subscribeToTopic(TOPIC_PARTICIPANTS, ParticipantsActivity.this);
+            Log.d(MQTTCONNECTION, "Subscription successful");
+        } catch (MqttException e) {
+            Log.d(MQTTCONNECTION, "No Subscription");
+        }
+    }
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // Create an Intent to launch the new activity
-                Intent intent = new Intent(ParticipantsActivity.this, RaceCompassActivity.class);
-                intent.putExtra("gardenNames", randomGardensArray);
-                startActivity(intent);
-                finish(); // Optional: finish the current activity
-            }
-        }, 40000); // 10000 milliseconds = 10 seconds
-
+    private void connectToBroker() {
 
     }
 
@@ -204,7 +239,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
 
         // Execute the loading task in background:
         LoadURLContents loadURLContents = new LoadURLContents(handler, CONTENT_TYPE_JSON, URL_GARDENS);
-        es.execute(loadURLContents);
+        downloadExecutor.execute(loadURLContents);
     }
 
     private void initRecyclerView() {
@@ -253,4 +288,5 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
     public void deliveryComplete(IMqttDeliveryToken token) {
         Log.d(MQTTCONNECTION, "Delivery complete");
     }
+
 }

@@ -69,11 +69,6 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-
         checkAndRequestLocationPermission();
     }
 
@@ -122,6 +117,8 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
     private void placeMarker(LatLng location) {
         if (mMap != null) {
             mMap.addMarker(new MarkerOptions().position(location).title("Current Location"));
+            // Move the camera to the current location
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15)); // Adjust the zoom level as needed
         }
     }
 }
