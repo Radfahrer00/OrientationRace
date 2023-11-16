@@ -113,7 +113,15 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
             Log.d(MQTTCONNECTION, "No Publishing");
         }
 
+        if (participantsDataset.getSize() >= 2 && randomGardensArray.length == 0) {
+            Intent newIntent = new Intent(ParticipantsActivity.this, RaceCompassActivity.class);
+            newIntent.putExtra("gardenNames", randomGardensArray);
+            startActivity(newIntent);
+            finish(); // Optional: finish the current activity
+        }
 
+
+        /*
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -124,7 +132,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
                 finish(); // Optional: finish the current activity
             }
         }, 40000); // 10000 milliseconds = 10 seconds
-
+        */
 
     }
 

@@ -19,7 +19,7 @@ public class ParticipantsDataset {
         listOfParticipants = new ArrayList<>();
     }
 
-    int getSize() {
+    public int getSize() {
         return listOfParticipants.size();
     }
 
