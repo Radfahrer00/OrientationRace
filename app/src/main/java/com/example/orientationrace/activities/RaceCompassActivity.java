@@ -100,18 +100,26 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
         } else if (event.sensor == magnetometer) {
             // Handle magnetometer data
             float degree = calculateDegree(event.values);
+
             rotateCompass(degree);
         }
     }
 
     private float calculateDegree(float[] values) {
         // Calculer l'azimut à partir des données du magnétomètre
-        return (float) Math.toDegrees(Math.atan2(values[1], values[0]));
+        values = normalize(values);
+        float azimuth = (float) Math.toDegrees(Math.atan2(values[1], values[0]));
+        // Correction pour assurer que l'azimut est dans la plage [0, 360)
+        azimuth = (azimuth + 360) % 360;
+
+        return azimuth;
     }
+    private static final float INITIAL_ROTATION_OFFSET = 270.0f; // Ajustez cette valeur selon votre image
 
     private void rotateCompass(float degree) {
+        float correctedDegree = currentDegree + INITIAL_ROTATION_OFFSET;
         RotateAnimation ra = new RotateAnimation(
-                currentDegree, degree,
+                correctedDegree, degree + INITIAL_ROTATION_OFFSET,
                 Animation.RELATIVE_TO_SELF, 0.5f,
                 Animation.RELATIVE_TO_SELF, 0.5f
         );
@@ -191,5 +199,13 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
             bCurrentLocation.setEnabled(true);
             bCurrentLocation.setText("See current location");
         }, 2 * 10 * 1000); // 5 minutes in milliseconds
+    }
+
+    private float[] normalize(float[] values) {
+        float norm = (float) Math.sqrt(values[0] * values[0] + values[1] * values[1] + values[2] * values[2]);
+        values[0] /= norm;
+        values[1] /= norm;
+        values[2] /= norm;
+        return values;
     }
 }
