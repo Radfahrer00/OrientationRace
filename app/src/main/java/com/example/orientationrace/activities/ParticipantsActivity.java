@@ -16,12 +16,16 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.orientationrace.LoadURLContents;
-import com.example.orientationrace.MqttHandler;
+import com.example.orientationrace.MqttManager;
 import com.example.orientationrace.participants.Participant;
 import com.example.orientationrace.participants.ParticipantsAdapter;
 import com.example.orientationrace.participants.ParticipantsDataset;
 import com.example.orientationrace.R;
 
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,15 +37,16 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ParticipantsActivity extends AppCompatActivity {
+public class ParticipantsActivity extends AppCompatActivity implements MqttCallback {
 
     // Participants dataset:
     private static final String TAG = "TAGListOfParticipants, ParticipantActivity";
     public ParticipantsDataset participantsDataset = new ParticipantsDataset();
+    private Long usercount = (long) 1;
     private RecyclerView recyclerView;
 
     // For downloading the Madrid Garden File
-    public static final String LOADWEBTAG = "LOAD_WEB_TAG"; // to easily filter logs
+    public static final String LOADWEBTAG = "LOAD_WEB_TAG";
     private String threadAndClass; // to clearly identify logs
     private static final String URL_GARDENS = "https://short.upm.es/3qnno";
     private static final String CONTENT_TYPE_JSON = "application/json";
@@ -50,10 +55,11 @@ public class ParticipantsActivity extends AppCompatActivity {
     JSONObject jsonObject;
     String[] randomGardensArray;
 
-    // MQTT Connection
+    // MQTT broker configurations
+    public static final String MQTTCONNECTION = "MQTT_connection";
+    private static final String TOPIC_PARTICIPANTS = "madridOrientationRace/participants";
     private String client_Id;
-    private MqttHandler mqttHandler;
-    final String subscriptionTopic = "race/participants";
+    private MqttManager mqttManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,11 +76,6 @@ public class ParticipantsActivity extends AppCompatActivity {
         String username = intent.getStringExtra("username");
         client_Id = username; // For MQTT
 
-        // MQTT Connection
-        //mqttHandler = new MqttHandler();
-        //mqttHandler.connect(SERVER_URI, client_Id);
-
-
         // Create the current user as a new participant and add him to the dataset
         Participant currentParticipant = new Participant(username, (long)0);
         participantsDataset.addParticipant(currentParticipant);
@@ -87,6 +88,32 @@ public class ParticipantsActivity extends AppCompatActivity {
         es = Executors.newSingleThreadExecutor();
         readJSON(text);
 
+        // Get the singleton instance of MqttManager.
+        mqttManager = MqttManager.getInstance();
+        // Connect to the MQTT broker when the activity starts.
+        try {
+            mqttManager.connect(client_Id);
+            Log.d(MQTTCONNECTION, "Connection succesfull");
+        } catch (MqttException e) {
+            Log.d(MQTTCONNECTION, "No Connection");
+            e.printStackTrace();
+        }
+
+        try {
+            mqttManager.subscribeToTopic(TOPIC_PARTICIPANTS, this);
+            Log.d(MQTTCONNECTION, "Subscription succesfull");
+        } catch (MqttException e) {
+            Log.d(MQTTCONNECTION, "No Subscription");
+        }
+
+        try {
+            mqttManager.publishMessage(TOPIC_PARTICIPANTS, client_Id);
+            Log.d(MQTTCONNECTION, "Publishing succesfull");
+        } catch (MqttException e) {
+            Log.d(MQTTCONNECTION, "No Publishing");
+        }
+
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -96,7 +123,9 @@ public class ParticipantsActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish(); // Optional: finish the current activity
             }
-        }, 10000); // 10000 milliseconds = 10 seconds
+        }, 40000); // 10000 milliseconds = 10 seconds
+
+
     }
 
     // Define the handler that will receive the messages from the background thread:
@@ -190,12 +219,38 @@ public class ParticipantsActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    private void publishMessage(String topic, String message) {
-        mqttHandler.publish(topic, message);
+    private void updateParticipantsList(MqttMessage mqttMessage) {
+        try {
+            String incomingMessage = new String(mqttMessage.getPayload());
+            if (!incomingMessage.equals(client_Id)) {
+                Participant newParticipant = new Participant(incomingMessage, usercount);
+                participantsDataset.addParticipant(newParticipant);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        recyclerView.getAdapter().notifyDataSetChanged();
+                    }
+                });
+                usercount = Long.sum(usercount, (long) 1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(MQTTCONNECTION, "Error in updateParticipantsList: " + e.getMessage());
+        }
     }
 
-    private void subscribeToTopic(String topic) {
-        mqttHandler.subscribe(topic);
+    @Override
+    public void connectionLost(Throwable cause) {
+        Log.d(MQTTCONNECTION, "Connection Lost");
     }
 
+    @Override
+    public void messageArrived(String topic, MqttMessage message) throws Exception {
+        updateParticipantsList(message);
+    }
+
+    @Override
+    public void deliveryComplete(IMqttDeliveryToken token) {
+        Log.d(MQTTCONNECTION, "Delivery complete");
+    }
 }
