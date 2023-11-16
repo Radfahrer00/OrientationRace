@@ -62,7 +62,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
     private String client_Id;
     private MqttManager mqttManager;
     private Handler checkConditionsHandler = new Handler();
-    private static final int CHECK_CONDITIONS_INTERVAL = 3000; // 3 seconds
+    private static final int CHECK_CONDITIONS_INTERVAL = 30000; // 3 seconds
 
     private Runnable checkConditionsRunnable = new Runnable() {
         @Override
@@ -116,33 +116,22 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
 
 
         mqttExecutor = Executors.newSingleThreadExecutor();
+        mqttManager = MqttManager.getInstance();
+        Log.d(MQTTCONNECTION, "Handler defined");
         // Submit the MQTT-related tasks to the executor for background execution
         mqttExecutor.submit(new Runnable() {
             @Override
             public void run() {
-                // Get the singleton instance of MqttManager.
-                mqttManager = MqttManager.getInstance();
-
-                connectToBroker();
+                Log.d(MQTTCONNECTION, "Starting MQTT Thread");
+                // Connect to the MQTT broker when the activity starts.
+                mqttManager.connect(client_Id);
+                Log.d(MQTTCONNECTION, "Connected");
                 subscribeToTopic();
                 publishConnection();
             }
         });
 
         checkConditionsHandler.postDelayed(checkConditionsRunnable, CHECK_CONDITIONS_INTERVAL);
-
-/*
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // Create an Intent to launch the new activity
-                Intent intent = new Intent(ParticipantsActivity.this, RaceCompassActivity.class);
-                intent.putExtra("gardenNames", randomGardensArray);
-                startActivity(intent);
-                finish(); // Optional: finish the current activity
-            }
-        }, 20000); // 10000 milliseconds = 10 seconds
- */
     }
 
     @Override
@@ -171,14 +160,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
     }
 
     private void connectToBroker() {
-        // Connect to the MQTT broker when the activity starts.
-        try {
-            mqttManager.connect(client_Id);
-            Log.d(MQTTCONNECTION, "Connection successful");
-        } catch (MqttException e) {
-            Log.d(MQTTCONNECTION, "No Connection");
-            e.printStackTrace();
-        }
+
     }
 
     // Define the handler that will receive the messages from the background thread:
@@ -306,4 +288,5 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
     public void deliveryComplete(IMqttDeliveryToken token) {
         Log.d(MQTTCONNECTION, "Delivery complete");
     }
+
 }

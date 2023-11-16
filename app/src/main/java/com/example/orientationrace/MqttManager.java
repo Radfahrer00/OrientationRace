@@ -1,5 +1,7 @@
 package com.example.orientationrace;
 
+import android.util.Log;
+
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -11,6 +13,7 @@ public class MqttManager {
     private static MqttManager instance;
     private MqttClient mqttClient;
     private static final String BROKER_URI = "tcp://91.121.93.94:1883";
+    public static final String MQTTCONNECTION = "MQTT_connection";
 
     private MqttManager() {
         // Private constructor to prevent instantiation outside of this class.
@@ -23,12 +26,23 @@ public class MqttManager {
         return instance;
     }
 
-    public void connect(String clientId) throws MqttException {
-        // Connect to the MQTT broker and set up necessary configurations.
-        MemoryPersistence persistence = new MemoryPersistence();
-        mqttClient = new MqttClient(BROKER_URI, clientId, persistence);
 
-        mqttClient.connect();
+    public void connect(String clientId) {
+        try {
+            // Connect to the MQTT broker and set up necessary configurations.
+            MemoryPersistence persistence = new MemoryPersistence();
+            mqttClient = new MqttClient(BROKER_URI, clientId, persistence);
+
+            MqttConnectOptions options = new MqttConnectOptions();
+            options.setCleanSession(true);
+
+            mqttClient.connect(options);
+
+            Log.d(MQTTCONNECTION, "Connection successful");
+        } catch (MqttException e) {
+            Log.e(MQTTCONNECTION, "Error connecting to MQTT broker", e);
+            e.printStackTrace();
+        }
     }
 
     public void disconnect() throws MqttException {
