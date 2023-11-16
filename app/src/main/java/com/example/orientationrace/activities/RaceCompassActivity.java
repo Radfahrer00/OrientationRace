@@ -8,11 +8,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.view.View;
+import android.os.Handler;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -27,13 +28,14 @@ import com.example.orientationrace.gardens.GardensDataset;
 public class RaceCompassActivity extends AppCompatActivity implements SensorEventListener {
 
     // Gardens dataset:
-    private static final String TAG = "TAGListOfGardens, GardenActivity";
     public GardensDataset gardensDataset = new GardensDataset();
 
     private ImageView compassImage;
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private Sensor magnetometer;
+    private Button bCurrentLocation;
+    private boolean isButtonAvailable;
 
     private float currentDegree = 0f;
 
@@ -57,20 +59,26 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
         initRecyclerView();
 
         // Applying OnLongClickListener to our Adapter
-        gardensAdapter.setOnLongClickListener(new GardensAdapter.OnLongClickListener() {
-            @Override
-            public void onLongClick(int position, Garden garden) {
-                showPopup(position);
-            }
-        });
+        gardensAdapter.setOnLongClickListener((position, garden) -> showPopup(position));
 
         compassImage = findViewById(R.id.compassImageView);
+        bCurrentLocation = findViewById(R.id.buttonCurrentLocation);
+        isButtonAvailable = true;
 
         // Initialize the sensor manager
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+
+        bCurrentLocation.setOnClickListener(v -> {
+            if (isButtonAvailable) {
+                startCurrentLocationActivity();
+            }
+        });
+
     }
+
+
 
     @Override
     protected void onResume() {
@@ -156,23 +164,43 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
 
         // Get reference to the "Confirm" button in the popup layout and add onClick Listener
         Button bConfirm = popupDialog.findViewById(R.id.buttonConfirm);
-        bConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Update the clicked state for the item
-                gardensAdapter.itemClickedState[position] = true;
+        bConfirm.setOnClickListener(v -> {
+            // Update the clicked state for the item
+            gardensAdapter.itemClickedState[position] = true;
 
-                // Notify the adapter that the data set has changed
-                gardensAdapter.notifyItemChanged(position);
+            // Notify the adapter that the data set has changed
+            gardensAdapter.notifyItemChanged(position);
 
-                // Dismiss the popup window
-                popupDialog.dismiss();
-            }
+            // Dismiss the popup window
+            popupDialog.dismiss();
         });
 
         // Show the popup
         popupDialog.show();
     }
+
+    private void startCurrentLocationActivity() {
+        Intent intentLocation = new Intent(RaceCompassActivity.this, CurrentLocationActivity.class);
+        startActivity(intentLocation);
+        // Disable the button immediately
+        disableButtonForFiveMinutes();
+
+        Toast.makeText(RaceCompassActivity.this, "Button disabled for 5 minutes!", Toast.LENGTH_SHORT).show();
+    }
+
+    private void disableButtonForFiveMinutes() {
+        isButtonAvailable = false;
+        bCurrentLocation.setEnabled(false);
+        bCurrentLocation.setText("Not available");
+
+        // After 5 minutes, enable the button again
+        new Handler().postDelayed(() -> {
+            isButtonAvailable = true;
+            bCurrentLocation.setEnabled(true);
+            bCurrentLocation.setText("See current location");
+        }, 2 * 10 * 1000); // 5 minutes in milliseconds
+    }
+
     private float[] normalize(float[] values) {
         float norm = (float) Math.sqrt(values[0] * values[0] + values[1] * values[1] + values[2] * values[2]);
         values[0] /= norm;
@@ -180,6 +208,4 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
         values[2] /= norm;
         return values;
     }
-
-
 }

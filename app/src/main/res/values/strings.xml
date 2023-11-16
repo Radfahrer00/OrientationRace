@@ -3,4 +3,7 @@
     <string name="waiting_msg">Please wait, the race will start very soon. Be ready.</string>
     <string name="main_msg">Welcome to the Madrid Orientation Race 2023!</string>
     <string name="button_exit_text">Exit!</string>
+    <string name="title_activity_current_location">CurrentLocationActivity</string>
+    <string name="click_button">Click this Button to\nsee your location</string>
+    <string name="current_location_button">See current location</string>
 </resources>
