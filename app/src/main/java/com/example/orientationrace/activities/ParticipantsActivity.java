@@ -62,7 +62,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
     private String client_Id;
     private MqttManager mqttManager;
     private Handler checkConditionsHandler = new Handler();
-    private static final int CHECK_CONDITIONS_INTERVAL = 30000; // 3 seconds
+    private static final int CHECK_CONDITIONS_INTERVAL = 3000; // 3 seconds
 
     private Runnable checkConditionsRunnable = new Runnable() {
         @Override
