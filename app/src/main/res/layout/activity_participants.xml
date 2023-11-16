@@ -1,56 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#dcdcdc"
-    tools:context=".MainActivity">
+    android:fillViewport="true">
 
-
-    <ImageView
-        android:id="@+id/myImageView"
-        android:layout_width="match_parent"
-        android:layout_marginTop="20dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:src="@drawable/image" />
-
-    <TextView
-        android:id="@+id/welcomeText"
-        android:layout_width="222dp"
-        android:layout_height="67dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="80dp"
-        android:gravity="center"
-        android:text="@string/main_msg"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_marginLeft="35dp"
-        android:layout_marginRight="35dp"
-        android:layout_marginTop="25dp" />
-
-
-    <ImageView
-        android:id="@+id/run"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:layout_marginTop="25dp"
-        android:src="@drawable/run2" />
+        android:orientation="vertical"
+        android:background="#dcdcdc"
+        tools:context=".MainActivity">
 
 
-    <TextView
-        android:id="@+id/HTTPTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="" />
+        <ImageView
+            android:id="@+id/myImageView"
+            android:layout_width="match_parent"
+            android:layout_marginTop="20dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:src="@drawable/image" />
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/welcomeText"
+            android:layout_width="222dp"
+            android:layout_height="67dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="80dp"
+            android:gravity="center"
+            android:text="@string/main_msg"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginLeft="35dp"
+            android:layout_marginRight="35dp"
+            android:layout_marginTop="25dp" />
+
+        <ImageView
+            android:id="@+id/run"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:layout_marginTop="15dp"
+            android:src="@drawable/run2" />
+
+        <TextView
+            android:id="@+id/HTTPTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="" />
+
+    </LinearLayout>
+</ScrollView>
