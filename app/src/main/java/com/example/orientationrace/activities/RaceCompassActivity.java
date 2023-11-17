@@ -9,6 +9,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
@@ -17,6 +18,9 @@ import android.widget.ImageView;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,16 +28,24 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.orientationrace.MqttManager;
 import com.example.orientationrace.R;
 import com.example.orientationrace.gardens.Garden;
 import com.example.orientationrace.gardens.GardensAdapter;
 import com.example.orientationrace.gardens.GardensDataset;
+import com.example.orientationrace.participants.Participant;
 
-public class RaceCompassActivity extends AppCompatActivity implements SensorEventListener, OnInitListener {
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+public class RaceCompassActivity extends AppCompatActivity implements SensorEventListener, OnInitListener, MqttCallback {
 
     // Gardens dataset:
     private static final String TAG = "TAGListOfGardens, GardenActivity";
     public GardensDataset gardensDataset = new GardensDataset();
+    boolean checkpointConfirmed = false;
 
     private ImageView compassImage;
     private SensorManager sensorManager;
@@ -50,8 +62,18 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
     private Handler speechHandler;
 
     private float correctedDegree ;
+
+    // To see the current Location on the map
     private Button bCurrentLocation;
     private boolean isButtonAvailable;
+
+    // MQTT Connection
+    public static final String MQTTCONNECTION = "MQTT_connection";
+    private static final String TOPIC_CHECKPOINTS = "madridOrientationRace/checkpoints";
+    private MqttManager mqttManager;
+    ExecutorService mqttExecutor;
+    private String username;
+    private int checkpointsReached;
 
 
     @Override
@@ -63,6 +85,7 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
         Intent intent = getIntent();
         // Receive the username
         String[] gardenNames = intent.getStringArrayExtra("gardenNames");
+        username = intent.getStringExtra("username");
 
         for (int i = 0; i < gardenNames.length; i++) {
             Garden garden = new Garden(gardenNames[i], (long) i);
@@ -72,6 +95,12 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
         textToSpeech = new TextToSpeech(this, this);
 
         initRecyclerView();
+        checkpointsReached = 0;
+
+        mqttExecutor = Executors.newSingleThreadExecutor();
+        mqttManager = MqttManager.getInstance();
+
+        subscribeToTopic();
 
         // Applying OnLongClickListener to our Adapter
         gardensAdapter.setOnLongClickListener(new GardensAdapter.OnLongClickListener() {
@@ -125,6 +154,11 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
         }
     }
 
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
+
     private float calculateDegree(float[] values) {
         // Calculer l'azimut à partir des données du magnétomètre
         //values = normalize(values);
@@ -165,11 +199,6 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
         }
     }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // Gérer les changements d'exactitude des capteurs si nécessaire.
-    }
-
     private void initRecyclerView() {
         // Prepare the RecyclerView:
         RecyclerView recyclerView = findViewById(R.id.gardensRecyclerView);
@@ -177,8 +206,7 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
         recyclerView.setAdapter(recyclerViewAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        // Choose the layout manager to be set.
-        // by default, a linear layout is chosen:
+        // Set Grid as layout manager
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
     }
 
@@ -199,19 +227,26 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
 
         // Get reference to the "Confirm" button in the popup layout and add onClick Listener
         Button bConfirm = popupDialog.findViewById(R.id.buttonConfirm);
+        Log.d(MQTTCONNECTION, "Setting OnClickListener for Confirm button");
         bConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Update the clicked state for the item
                 gardensAdapter.itemClickedState[position] = true;
-
-                // Notify the adapter that the data set has changed
                 gardensAdapter.notifyItemChanged(position);
-
-                // Dismiss the popup window
+                checkpointsReached++;
                 popupDialog.dismiss();
+                checkpointConfirmed = true;
             }
         });
+
+        Log.d(MQTTCONNECTION, "Checkpoint status: " + checkpointConfirmed);
+        Log.d(MQTTCONNECTION, String.valueOf(checkpointsReached));
+
+        if (checkpointConfirmed) {
+            Log.d(MQTTCONNECTION, "Checkpoint Confirmed");
+            publishCheckpointReached(checkpointsReached);
+            checkpointConfirmed = false;
+        }
 
         // Show the popup
         popupDialog.show();
@@ -220,7 +255,7 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
     private void startCurrentLocationActivity() {
         Intent intentLocation = new Intent(RaceCompassActivity.this, CurrentLocationActivity.class);
         startActivity(intentLocation);
-        // Disable the button immediately
+        // Disable the button immediately for 5 Minutes
         disableButtonForFiveMinutes();
 
         Toast.makeText(RaceCompassActivity.this, "Button disabled for 5 minutes!", Toast.LENGTH_SHORT).show();
@@ -277,5 +312,51 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
                 speechHandler.postDelayed(this, SPEECH_DELAY_MILLIS);
             }
         }, SPEECH_DELAY_MILLIS);
+    }
+
+    private void subscribeToTopic() {
+        try {
+            mqttManager.subscribeToTopic(TOPIC_CHECKPOINTS, RaceCompassActivity.this);
+            Log.d(MQTTCONNECTION, "Subscription successful to " + TOPIC_CHECKPOINTS);
+        } catch (MqttException e) {
+            Log.d(MQTTCONNECTION, "No Subscription");
+        }
+    }
+
+    private void publishCheckpointReached(int checkpointNumber) {
+        String message = username + " reached Checkpoint Number: " + checkpointNumber;
+        Log.d(MQTTCONNECTION, "Message: " + message);
+        try {
+            mqttManager.publishMessage(TOPIC_CHECKPOINTS, message);
+            Log.d(MQTTCONNECTION, "Checkpoint Publishing successful");
+        } catch (MqttException e) {
+            Log.d(MQTTCONNECTION, "No Publishing");
+        }
+    }
+
+    @Override
+    public void connectionLost(Throwable cause) {
+        // Handle the case when the connection to the broker is lost
+        if (cause != null) {
+            Log.e(MQTTCONNECTION, "Connection to MQTT broker lost: " + cause.getMessage());
+        } else {
+            Log.e(MQTTCONNECTION, "Connection to MQTT broker lost");
+        }
+    }
+
+    @Override
+    public void messageArrived(String topic, MqttMessage message) throws Exception {
+        try {
+            String incomingMessage = new String(message.getPayload());
+            Log.d(MQTTCONNECTION, "Message arrived");
+            Toast.makeText(RaceCompassActivity.this, incomingMessage, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void deliveryComplete(IMqttDeliveryToken token) {
+
     }
 }

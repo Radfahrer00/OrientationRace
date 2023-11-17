@@ -1,38 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#dcdcdc"
     tools:context=".MainActivity">
 
+    <!-- Background Image -->
     <ImageView
-        android:id="@+id/myImageView"
-        android:layout_marginTop="20px"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:src="@drawable/image" />
+        android:layout_height="match_parent"
+        android:src="@drawable/madrid_city"
+        android:scaleType="centerCrop" />
 
+    <!-- Welcome Message -->
     <TextView
         android:id="@+id/welcomeText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
-        android:gravity="center"
-        android:layout_gravity="center"
+        android:layout_marginTop="82dp"
         android:text="@string/main_msg"
-        android:textSize="20sp"
-        android:textStyle="bold"/>
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textColor="#80A52A2A"
+        android:layout_centerHorizontal="true"/>
 
     <LinearLayout
-        android:layout_marginTop="80dp"
+        android:id="@+id/usernameLinearLayout"
+        android:layout_marginTop="400dp"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:orientation="horizontal"
-        android:gravity="center"
-        tools:context=".MainActivity">
+        android:gravity="center">
 
         <TextView
             android:id="@+id/usernameText"
@@ -56,9 +55,13 @@
         android:id="@+id/buttonEnterRace"
         android:layout_width="200dp"
         android:layout_height="70dp"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="20dp"
         android:layout_gravity="center"
+        android:layout_below="@id/usernameLinearLayout"
+        android:layout_centerHorizontal="true"
         android:text="Enter Race"
-        android:textSize="30sp"/>
+        android:textSize="30sp"
+        android:background="@drawable/enter_race_background"/>
 
-</LinearLayout>
+
+</RelativeLayout>

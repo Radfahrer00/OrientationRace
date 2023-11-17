@@ -30,6 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Random;
@@ -40,10 +41,10 @@ import java.util.concurrent.Executors;
 public class ParticipantsActivity extends AppCompatActivity implements MqttCallback {
 
     // Participants dataset:
-    private static final String TAG = "TAGListOfParticipants, ParticipantActivity";
     public ParticipantsDataset participantsDataset = new ParticipantsDataset();
-    private Long usercount = (long) 1;
+    private Long userCount = (long) 1;
     private RecyclerView recyclerView;
+    String username = "";
 
     // For downloading the Madrid Garden File
     public static final String LOADWEBTAG = "LOAD_WEB_TAG";
@@ -61,6 +62,8 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
     private static final String TOPIC_PARTICIPANTS = "madridOrientationRace/participants";
     private String client_Id;
     private MqttManager mqttManager;
+
+    // Condition Handler for Activity change
     private Handler checkConditionsHandler = new Handler();
     private static final int CHECK_CONDITIONS_INTERVAL = 3000; // 3 seconds
 
@@ -71,6 +74,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
                 // Create an Intent to launch the new activity
                 Intent newIntent = new Intent(ParticipantsActivity.this, RaceCompassActivity.class);
                 newIntent.putExtra("gardenNames", randomGardensArray);
+                newIntent.putExtra("username", username);
                 startActivity(newIntent);
 
                 // Finish the current activity if needed
@@ -93,7 +97,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
         // Create the get Intent object
         Intent intent = getIntent();
         // Receive the username
-        String username = intent.getStringExtra("username");
+        username = intent.getStringExtra("username");
         client_Id = username; // For MQTT
 
         // Create the current user as a new participant and add him to the dataset
@@ -123,9 +127,12 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
             @Override
             public void run() {
                 Log.d(MQTTCONNECTION, "Starting MQTT Thread");
+
                 // Connect to the MQTT broker when the activity starts.
                 mqttManager.connect(client_Id);
-                Log.d(MQTTCONNECTION, "Connected");
+                Log.d(MQTTCONNECTION, "Connection successful");
+
+                // Once connected, subscribe to topics and publish messages
                 subscribeToTopic();
                 publishConnection();
             }
@@ -159,10 +166,6 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
         }
     }
 
-    private void connectToBroker() {
-
-    }
-
     // Define the handler that will receive the messages from the background thread:
     Handler handler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -173,7 +176,22 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
             if (msg.getData() != null) {
                 String string_result = msg.getData().getString("text");
                 if (string_result != null) {
-                    processJsonData(string_result);
+                    try {
+                        processJsonData(string_result);
+                    } catch (Exception e) {
+                        // Catch other exceptions including UnknownHostException
+                        e.printStackTrace();
+                        Log.e(LOADWEBTAG, "Exception occurred", e);
+                        if (e instanceof UnknownHostException) {
+                            // Handle UnknownHostException (network unavailable or host not reachable)
+                            Log.e(LOADWEBTAG, "UnknownHostException: Unable to resolve host", e);
+                            // Show a message to the user or take appropriate action
+                            runOnUiThread(() -> {
+                                // Update UI or show a message indicating network issues
+                                text.setText("Network unavailable. Please check your internet connection.");
+                            });
+                        }
+                    }
                 }
             }
         }
@@ -239,6 +257,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
 
         // Execute the loading task in background:
         LoadURLContents loadURLContents = new LoadURLContents(handler, CONTENT_TYPE_JSON, URL_GARDENS);
+        Log.d(MQTTCONNECTION, "Loading URL Contents...");
         downloadExecutor.execute(loadURLContents);
     }
 
@@ -258,7 +277,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
         try {
             String incomingMessage = new String(mqttMessage.getPayload());
             if (!incomingMessage.equals(client_Id)) {
-                Participant newParticipant = new Participant(incomingMessage, usercount);
+                Participant newParticipant = new Participant(incomingMessage, userCount);
                 participantsDataset.addParticipant(newParticipant);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -266,7 +285,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
                         recyclerView.getAdapter().notifyDataSetChanged();
                     }
                 });
-                usercount = Long.sum(usercount, (long) 1);
+                userCount = Long.sum(userCount, (long) 1);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -276,11 +295,16 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
 
     @Override
     public void connectionLost(Throwable cause) {
-        Log.d(MQTTCONNECTION, "Connection Lost");
+        // Handle the case when the connection to the broker is lost
+        if (cause != null) {
+            Log.e(MQTTCONNECTION, "Connection to MQTT broker lost: " + cause.getMessage());
+        } else {
+            Log.e(MQTTCONNECTION, "Connection to MQTT broker lost");
+        }
     }
 
     @Override
-    public void messageArrived(String topic, MqttMessage message) throws Exception {
+    public void messageArrived(String topic, MqttMessage message) {
         updateParticipantsList(message);
     }
 

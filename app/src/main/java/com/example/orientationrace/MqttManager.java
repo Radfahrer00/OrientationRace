@@ -37,8 +37,6 @@ public class MqttManager {
             options.setCleanSession(true);
 
             mqttClient.connect(options);
-
-            Log.d(MQTTCONNECTION, "Connection successful");
         } catch (MqttException e) {
             Log.e(MQTTCONNECTION, "Error connecting to MQTT broker", e);
             e.printStackTrace();
