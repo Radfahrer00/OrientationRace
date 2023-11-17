@@ -23,33 +23,33 @@
         android:textStyle="bold"
         android:gravity="center"
         android:textColor="#80A52A2A"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerHorizontal="true"
+        />
 
-    <LinearLayout
-        android:id="@+id/usernameLinearLayout"
-        android:layout_marginTop="400dp"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:orientation="horizontal"
-        android:gravity="center">
+    <!-- Username Input -->
+    <EditText
+        android:id="@+id/usernameInput"
+        android:layout_width="240dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="440dp"
+        android:layout_marginStart="16dp"
+        android:background="@drawable/username_background"
+        android:inputType="text"
+        android:hint="  Enter your username"
+        android:layout_centerHorizontal="true" />
 
-        <TextView
-            android:id="@+id/usernameText"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:text="Type in your username:"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:textSize="16sp" />
+    <TextView
+        android:id="@+id/usernameLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="94dp"
+        android:layout_marginTop="442dp"
+        android:text="Username:"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:textColor="#A52A2A"
+        android:visibility="invisible"/>
 
-        <EditText
-            android:id="@+id/usernameInput"
-            android:layout_width="220dp"
-            android:layout_height="60dp"
-            android:background="@drawable/username_background"
-            android:autofillHints="Enter your username"
-            android:inputType="text"/>
-    </LinearLayout>
 
     <Button
         android:id="@+id/buttonEnterRace"
@@ -57,11 +57,12 @@
         android:layout_height="70dp"
         android:layout_marginTop="20dp"
         android:layout_gravity="center"
-        android:layout_below="@id/usernameLinearLayout"
+        android:layout_below="@id/usernameInput"
         android:layout_centerHorizontal="true"
+        android:backgroundTint="#A52A2A"
         android:text="Enter Race"
         android:textSize="30sp"
-        android:background="@drawable/enter_race_background"/>
+        />
 
 
 </RelativeLayout>
