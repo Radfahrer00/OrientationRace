@@ -1,42 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    tools:context=".MainActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/madrid_parc"
+        android:scaleType="centerCrop" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#dcdcdc"
         tools:context=".MainActivity">
-
-
-        <ImageView
-            android:id="@+id/myImageView"
-            android:layout_width="match_parent"
-            android:layout_marginTop="20dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top"
-            android:src="@drawable/image" />
 
         <TextView
             android:id="@+id/welcomeText"
-            android:layout_width="222dp"
+            android:background="@drawable/textview_background"
+            android:layout_width="340dp"
             android:layout_height="67dp"
             android:layout_gravity="center"
             android:layout_marginTop="80dp"
             android:gravity="center"
-            android:text="@string/main_msg"
+            android:text="@string/participants_msg"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textSize="25sp"
+            android:textColor="@color/white"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="200dp"
             android:layout_marginLeft="35dp"
             android:layout_marginRight="35dp"
             android:layout_marginTop="25dp" />
@@ -46,7 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="80dp"
             android:src="@drawable/run2" />
 
         <TextView
@@ -56,4 +53,4 @@
             android:text="" />
 
     </LinearLayout>
-</ScrollView>
+</RelativeLayout>
