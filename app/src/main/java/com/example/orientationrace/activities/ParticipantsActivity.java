@@ -13,9 +13,11 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.orientationrace.LoadURLContents;
+import com.example.orientationrace.MainActivity;
 import com.example.orientationrace.MqttManager;
 import com.example.orientationrace.participants.Participant;
 import com.example.orientationrace.participants.ParticipantsAdapter;
@@ -62,6 +64,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
     private static final String TOPIC_PARTICIPANTS = "madridOrientationRace/participants";
     private String client_Id;
     private MqttManager mqttManager;
+    Button bInformParticipants;
 
     // Condition Handler for Activity change
     private Handler checkConditionsHandler = new Handler();
@@ -70,7 +73,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
     private Runnable checkConditionsRunnable = new Runnable() {
         @Override
         public void run() {
-            if (participantsDataset.getSize() >= 1 && randomGardensArray != null && randomGardensArray.length != 0) {
+            if (participantsDataset.getSize() >= 5 && randomGardensArray != null && randomGardensArray.length != 0) {
                 // Create an Intent to launch the new activity
                 Intent newIntent = new Intent(ParticipantsActivity.this, RaceCompassActivity.class);
                 newIntent.putExtra("gardenNames", randomGardensArray);
@@ -105,6 +108,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
         participantsDataset.addParticipant(currentParticipant);
 
         text = findViewById(R.id.HTTPTextView);
+        bInformParticipants = findViewById(R.id.buttonInform);
 
         initRecyclerView();
 
@@ -136,6 +140,10 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
                 subscribeToTopic();
                 publishConnection();
             }
+        });
+
+        bInformParticipants.setOnClickListener(v -> {
+            publishConnection();
         });
 
         checkConditionsHandler.postDelayed(checkConditionsRunnable, CHECK_CONDITIONS_INTERVAL);
@@ -276,7 +284,17 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
     private void updateParticipantsList(MqttMessage mqttMessage) {
         try {
             String incomingMessage = new String(mqttMessage.getPayload());
-            if (!incomingMessage.equals(client_Id)) {
+
+            // Check if a participant with the same client_Id already exists
+            boolean participantExists = false;
+            for (Participant existingParticipant : participantsDataset.getParticipants()) {
+                if (existingParticipant.getUsername().equals(incomingMessage)) {
+                    participantExists = true;
+                    break;
+                }
+            }
+
+            if (!participantExists && !incomingMessage.equals(client_Id)) {
                 Participant newParticipant = new Participant(incomingMessage, userCount);
                 participantsDataset.addParticipant(newParticipant);
                 runOnUiThread(new Runnable() {

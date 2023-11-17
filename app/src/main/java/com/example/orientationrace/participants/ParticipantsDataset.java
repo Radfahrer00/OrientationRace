@@ -51,4 +51,8 @@ public class ParticipantsDataset {
         removeParticipantAtPosition(getPositionOfKey(key));
     }
 
+    public List<Participant> getParticipants() {
+        return new ArrayList<>(listOfParticipants);
+    }
+
 }
