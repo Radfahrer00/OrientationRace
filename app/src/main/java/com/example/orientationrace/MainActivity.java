@@ -13,7 +13,6 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.orientationrace.activities.ParticipantsActivity;
-import com.example.orientationrace.activities.WaitingRoomActivity;
 
 public class MainActivity extends AppCompatActivity {
 

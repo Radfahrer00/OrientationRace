@@ -19,8 +19,8 @@ public class LoadURLContents implements Runnable {
     // and populate a String with it that will be sent in a Message
 
     Handler creator; // handler to the main activity, who creates this task
-    private String expectedContent_type;
-    private String string_URL;
+    private final String expectedContent_type;
+    private final String string_URL;
 
 
     public LoadURLContents(Handler handler, String cnt_type, String strURL) {
@@ -59,7 +59,7 @@ public class LoadURLContents implements Runnable {
             // Content-type: type/subtype;parameter1=value1;parameter2=value2...
             if((actualContentType != null) && (actualContentType.contains(";"))) {
                 Log.d(ParticipantsActivity.LOADWEBTAG, threadAndClass + ": Complete HTTP content-type header from server = " + actualContentType);
-                int beginparam = actualContentType.indexOf(";", 0);
+                int beginparam = actualContentType.indexOf(";");
                 actualContentType = actualContentType.substring(0, beginparam);
             }
             Log.d(ParticipantsActivity.LOADWEBTAG, threadAndClass + ": MIME type reported by server = " + actualContentType);
@@ -85,7 +85,7 @@ public class LoadURLContents implements Runnable {
         }
 
         Log.d(ParticipantsActivity.LOADWEBTAG, threadAndClass + ": load complete, sending message to UI thread");
-        if ("".equals(response) == false) {
+        if (!"".equals(response)) {
             msg_data.putString("text", response);
         }
         msg.sendToTarget();

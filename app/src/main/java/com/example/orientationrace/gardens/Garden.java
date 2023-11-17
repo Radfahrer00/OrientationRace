@@ -3,7 +3,7 @@ package com.example.orientationrace.gardens;
 public class Garden {
     // This class contains the actual data of each Garden of the dataset
 
-    private String gardenName; ; // Name of the Garden
+    private final String gardenName; // Name of the Garden
     private Long key; // In this app we use keys of type Long
 
     public Garden(String gardenName, Long key) {

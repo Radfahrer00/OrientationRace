@@ -22,9 +22,8 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> {
 
     private final GardensDataset dataset; // reference to the dataset
 
-    private Context context;
+    private final Context context;
     public boolean[] itemClickedState;  // Keeps track of clicked state for each item
-    private OnLongClickListener onLongClickListener;
 
     public GardensAdapter(GardensDataset dataset, Context context) {
         super();
@@ -84,7 +83,6 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> {
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClickListener) {
-        this.onLongClickListener = onLongClickListener;
     }
 
     public interface OnLongClickListener {
@@ -99,8 +97,7 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> {
 
     public int getPositionOfKey(Long searchedkey) {
         //Log.d(TAG, "getPositionOfKey() called for key " + searchedkey + ", returns " + position);
-        int position = dataset.getPositionOfKey(searchedkey);
-        return position;
+        return dataset.getPositionOfKey(searchedkey);
     }
 
     // Method to show a Popup window requesting the user to confirm that he reached the checkpoint
