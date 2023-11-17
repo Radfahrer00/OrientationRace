@@ -1,5 +1,7 @@
 package com.example.orientationrace.gardens;
 
+import static com.example.orientationrace.activities.RaceCompassActivity.MQTTCONNECTION;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.util.Log;
@@ -12,11 +14,17 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.orientationrace.MqttManager;
 import com.example.orientationrace.R;
+
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.util.Arrays;
 
-public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> {
+public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> implements MqttCallback {
 
     private static final String TAG = "TAGListOfGardens, GardensAdapter";
 
@@ -24,6 +32,9 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> {
 
     private final Context context;
     public boolean[] itemClickedState;  // Keeps track of clicked state for each item
+    private int checkpointsReached;
+    private static final String TOPIC_CHECKPOINTS = "madridOrientationRace/checkpoints";
+    private MqttManager mqttManager;
 
     public GardensAdapter(GardensDataset dataset, Context context) {
         super();
@@ -32,6 +43,8 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> {
         this.context = context;
         this.itemClickedState = new boolean[6];
         Arrays.fill(itemClickedState, false);
+        mqttManager = MqttManager.getInstance();
+        checkpointsReached = 0;
     }
 
     // ------ Implementation of methods of RecyclerView.Adapter ------ //
@@ -83,6 +96,22 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> {
     }
 
     public void setOnLongClickListener(OnLongClickListener onLongClickListener) {
+
+    }
+
+    @Override
+    public void connectionLost(Throwable cause) {
+
+    }
+
+    @Override
+    public void messageArrived(String topic, MqttMessage message) throws Exception {
+
+    }
+
+    @Override
+    public void deliveryComplete(IMqttDeliveryToken token) {
+
     }
 
     public interface OnLongClickListener {
@@ -118,11 +147,19 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> {
         // Get reference to the "Confirm" button in the popup layout and add onClick Listener
         Button bConfirm = popupDialog.findViewById(R.id.buttonConfirm);
         bConfirm.setOnClickListener(v -> {
-
             // Update the clicked state for the item;
             itemClickedState[gardenPosition] = true;
             // Notify the adapter that the data set has changed
             notifyItemChanged(gardenPosition);
+            checkpointsReached++;
+
+            if (checkpointsReached == 6) {
+                publishWinner();
+                Log.d(MQTTCONNECTION, "Publish winner");
+            } else {
+                publishCheckpointReached(checkpointsReached);
+                Log.d(MQTTCONNECTION, "Checkpoint Reached");
+            }
 
             // Close popup when the button is clicked
             popupDialog.dismiss();
@@ -130,6 +167,24 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> {
 
         // Show the popup
         popupDialog.show();
+    }
+
+    private void publishWinner() {
+        String message = mqttManager.getClientId() + " reached all Checkpoints and won!";
+        try {
+            mqttManager.publishMessage(TOPIC_CHECKPOINTS, message);
+        } catch (MqttException e) {
+            Log.d(MQTTCONNECTION, "No Publishing");
+        }
+    }
+
+    private void publishCheckpointReached(int checkpointNumber) {
+        String message = mqttManager.getClientId() + " reached Checkpoint Number: " + checkpointNumber;
+        try {
+            mqttManager.publishMessage(TOPIC_CHECKPOINTS, message);
+        } catch (MqttException e) {
+            Log.d(MQTTCONNECTION, "No Publishing");
+        }
     }
 
 }

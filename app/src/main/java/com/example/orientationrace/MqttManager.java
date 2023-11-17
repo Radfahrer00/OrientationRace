@@ -14,6 +14,7 @@ public class MqttManager {
     private MqttClient mqttClient;
     private static final String BROKER_URI = "tcp://91.121.93.94:1883";
     public static final String MQTTCONNECTION = "MQTT_connection";
+    String clientId;
 
     private MqttManager() {
         // Private constructor to prevent instantiation outside of this class.
@@ -60,5 +61,13 @@ public class MqttManager {
         // Subscribe to the specified MQTT topic.
         mqttClient.setCallback(callback);
         mqttClient.subscribe(topic);
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getClientId() {
+        return clientId;
     }
 }

@@ -45,7 +45,6 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
     // Gardens dataset:
     private static final String TAG = "TAGListOfGardens, GardenActivity";
     public GardensDataset gardensDataset = new GardensDataset();
-    boolean checkpointConfirmed = false;
 
     private ImageView compassImage;
     private SensorManager sensorManager;
@@ -227,26 +226,14 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
 
         // Get reference to the "Confirm" button in the popup layout and add onClick Listener
         Button bConfirm = popupDialog.findViewById(R.id.buttonConfirm);
-        Log.d(MQTTCONNECTION, "Setting OnClickListener for Confirm button");
         bConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 gardensAdapter.itemClickedState[position] = true;
                 gardensAdapter.notifyItemChanged(position);
-                checkpointsReached++;
                 popupDialog.dismiss();
-                checkpointConfirmed = true;
             }
         });
-
-        Log.d(MQTTCONNECTION, "Checkpoint status: " + checkpointConfirmed);
-        Log.d(MQTTCONNECTION, String.valueOf(checkpointsReached));
-
-        if (checkpointConfirmed) {
-            Log.d(MQTTCONNECTION, "Checkpoint Confirmed");
-            publishCheckpointReached(checkpointsReached);
-            checkpointConfirmed = false;
-        }
 
         // Show the popup
         popupDialog.show();
@@ -325,10 +312,8 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
 
     private void publishCheckpointReached(int checkpointNumber) {
         String message = username + " reached Checkpoint Number: " + checkpointNumber;
-        Log.d(MQTTCONNECTION, "Message: " + message);
         try {
             mqttManager.publishMessage(TOPIC_CHECKPOINTS, message);
-            Log.d(MQTTCONNECTION, "Checkpoint Publishing successful");
         } catch (MqttException e) {
             Log.d(MQTTCONNECTION, "No Publishing");
         }

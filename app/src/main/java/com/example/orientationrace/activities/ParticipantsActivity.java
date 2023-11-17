@@ -17,7 +17,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.orientationrace.LoadURLContents;
-import com.example.orientationrace.MainActivity;
 import com.example.orientationrace.MqttManager;
 import com.example.orientationrace.participants.Participant;
 import com.example.orientationrace.participants.ParticipantsAdapter;
@@ -40,6 +39,9 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Activity responsible for managing participants and initiating the race when conditions are met.
+ */
 public class ParticipantsActivity extends AppCompatActivity implements MqttCallback {
 
     // Participants dataset:
@@ -70,24 +72,6 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
     private Handler checkConditionsHandler = new Handler();
     private static final int CHECK_CONDITIONS_INTERVAL = 8000; // 8 seconds
 
-    private Runnable checkConditionsRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (participantsDataset.getSize() >= 5 && randomGardensArray != null && randomGardensArray.length != 0) {
-                // Create an Intent to launch the new activity
-                Intent newIntent = new Intent(ParticipantsActivity.this, RaceCompassActivity.class);
-                newIntent.putExtra("gardenNames", randomGardensArray);
-                newIntent.putExtra("username", username);
-                startActivity(newIntent);
-
-                // Finish the current activity if needed
-                finish();
-            } else {
-                // Conditions not met, schedule the next check
-                checkConditionsHandler.postDelayed(this, CHECK_CONDITIONS_INTERVAL);
-            }
-        }
-    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // Build the logTag with the Thread and Class names:
@@ -112,42 +96,51 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
 
         initRecyclerView();
 
-        // Create an executor for the background tasks:
+        // Create executors for the background tasks:
         downloadExecutor = Executors.newSingleThreadExecutor();
-        // Submit download-related tasks to the download executor
-        downloadExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                readJSON(text);
-            }
-        });
-
+        downloadExecutor.submit(() -> readJSON(text));
 
         mqttExecutor = Executors.newSingleThreadExecutor();
         mqttManager = MqttManager.getInstance();
-        Log.d(MQTTCONNECTION, "Handler defined");
+        mqttManager.setClientId(client_Id);
         // Submit the MQTT-related tasks to the executor for background execution
         mqttExecutor.submit(new Runnable() {
             @Override
             public void run() {
-                Log.d(MQTTCONNECTION, "Starting MQTT Thread");
-
                 // Connect to the MQTT broker when the activity starts.
                 mqttManager.connect(client_Id);
-                Log.d(MQTTCONNECTION, "Connection successful");
-
-                // Once connected, subscribe to topics and publish messages
-                subscribeToTopic();
-                publishConnection();
+                subscribeToParticipantsTopic();
+                publishUserConnected();
             }
         });
 
+        // On Click Listener for The Inform Participants about the connection
         bInformParticipants.setOnClickListener(v -> {
-            publishConnection();
+            publishUserConnected();
         });
 
         checkConditionsHandler.postDelayed(checkConditionsRunnable, CHECK_CONDITIONS_INTERVAL);
     }
+
+    private Runnable checkConditionsRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (participantsDataset.getSize() >= 1 && randomGardensArray != null && randomGardensArray.length != 0) {
+                // Create an Intent to launch the new activity
+                Intent newIntent = new Intent(ParticipantsActivity.this, RaceCompassActivity.class);
+                newIntent.putExtra("gardenNames", randomGardensArray);
+                newIntent.putExtra("username", username);
+                startActivity(newIntent);
+
+                // Finish the current activity if needed
+                finish();
+            } else {
+                // Conditions not met, schedule the next check
+                checkConditionsHandler.postDelayed(this, CHECK_CONDITIONS_INTERVAL);
+            }
+        }
+    };
+
 
     @Override
     protected void onDestroy() {
@@ -156,7 +149,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
         super.onDestroy();
     }
 
-    private void publishConnection() {
+    private void publishUserConnected() {
         try {
             mqttManager.publishMessage(TOPIC_PARTICIPANTS, client_Id);
             Log.d(MQTTCONNECTION, "Publishing successful");
@@ -165,7 +158,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
         }
     }
 
-    private void subscribeToTopic() {
+    private void subscribeToParticipantsTopic() {
         try {
             mqttManager.subscribeToTopic(TOPIC_PARTICIPANTS, ParticipantsActivity.this);
             Log.d(MQTTCONNECTION, "Subscription successful");
