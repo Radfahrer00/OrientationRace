@@ -1,6 +1,6 @@
 package com.example.orientationrace.gardens;
 
-import static com.example.orientationrace.activities.RaceCompassActivity.MQTTCONNECTION;
+import static com.example.orientationrace.activities.RaceActivity.MQTTCONNECTION;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -182,6 +183,7 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
         String message = mqttManager.getClientId() + " reached Checkpoint Number: " + checkpointNumber;
         try {
             mqttManager.publishMessage(TOPIC_CHECKPOINTS, message);
+            Toast.makeText(context.getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         } catch (MqttException e) {
             Log.d(MQTTCONNECTION, "No Publishing");
         }

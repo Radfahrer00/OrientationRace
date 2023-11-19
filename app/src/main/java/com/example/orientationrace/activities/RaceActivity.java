@@ -33,14 +33,13 @@ import com.example.orientationrace.R;
 import com.example.orientationrace.gardens.Garden;
 import com.example.orientationrace.gardens.GardensAdapter;
 import com.example.orientationrace.gardens.GardensDataset;
-import com.example.orientationrace.participants.Participant;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-public class RaceCompassActivity extends AppCompatActivity implements SensorEventListener, OnInitListener, MqttCallback {
+public class RaceActivity extends AppCompatActivity implements SensorEventListener, OnInitListener, MqttCallback {
 
     // Gardens dataset:
     private static final String TAG = "TAGListOfGardens, GardenActivity";
@@ -240,12 +239,12 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
     }
 
     private void startCurrentLocationActivity() {
-        Intent intentLocation = new Intent(RaceCompassActivity.this, CurrentLocationActivity.class);
+        Intent intentLocation = new Intent(RaceActivity.this, CurrentLocationActivity.class);
         startActivity(intentLocation);
         // Disable the button immediately for 5 Minutes
         disableButtonForFiveMinutes();
 
-        Toast.makeText(RaceCompassActivity.this, "Button disabled for 5 minutes!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(RaceActivity.this, "Button disabled for 5 minutes!", Toast.LENGTH_SHORT).show();
     }
 
     private void disableButtonForFiveMinutes() {
@@ -303,7 +302,7 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
 
     private void subscribeToTopic() {
         try {
-            mqttManager.subscribeToTopic(TOPIC_CHECKPOINTS, RaceCompassActivity.this);
+            mqttManager.subscribeToTopic(TOPIC_CHECKPOINTS, RaceActivity.this);
             Log.d(MQTTCONNECTION, "Subscription successful to " + TOPIC_CHECKPOINTS);
         } catch (MqttException e) {
             Log.d(MQTTCONNECTION, "No Subscription");
@@ -333,8 +332,7 @@ public class RaceCompassActivity extends AppCompatActivity implements SensorEven
     public void messageArrived(String topic, MqttMessage message) throws Exception {
         try {
             String incomingMessage = new String(message.getPayload());
-            Log.d(MQTTCONNECTION, "Message arrived");
-            Toast.makeText(RaceCompassActivity.this, incomingMessage, Toast.LENGTH_SHORT).show();
+            Log.d(MQTTCONNECTION, "Message arrived: " + incomingMessage);
         } catch (Exception e) {
             e.printStackTrace();
         }

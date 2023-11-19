@@ -127,7 +127,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
         public void run() {
             if (participantsDataset.getSize() >= 1 && randomGardensArray != null && randomGardensArray.length != 0) {
                 // Create an Intent to launch the new activity
-                Intent newIntent = new Intent(ParticipantsActivity.this, RaceCompassActivity.class);
+                Intent newIntent = new Intent(ParticipantsActivity.this, RaceActivity.class);
                 newIntent.putExtra("gardenNames", randomGardensArray);
                 newIntent.putExtra("username", username);
                 startActivity(newIntent);
