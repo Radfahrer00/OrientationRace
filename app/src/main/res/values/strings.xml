@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Orientation Race</string>
     <string name="waiting_msg">Please wait, the race will start very soon. Be ready.</string>
-    <string name="main_msg">Welcome to the Madrid Orientation Race 2023!</string>
+    <string name="main_msg">Welcome to MadRace -\nThe Madrid Orientation Race 2023!</string>
     <string name="participants_msg">Here are the Participants:</string>
     <string name="button_exit_text">Exit!</string>
     <string name="title_activity_current_location">CurrentLocationActivity</string>

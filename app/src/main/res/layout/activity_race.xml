@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="#FFFFF0">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,31 +26,32 @@
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
-            android:layout_height="500dp"
+            android:layout_height="400dp"
             android:layout_marginTop="10dp">
 
             <ImageView
                 android:id="@+id/compassImageView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="320dp"
+                android:layout_height="320dp"
                 android:layout_centerInParent="true"
                 android:scaleType="fitCenter"
                 android:src="@drawable/bousole" />
 
             <ImageView
                 android:id="@+id/Aigille"
-                android:layout_width="197dp"
-                android:layout_height="465dp"
+                android:layout_width="180dp"
+                android:layout_height="315dp"
                 android:layout_centerInParent="true"
                 android:rotation="0"
                 android:scaleType="center"
                 android:src="@drawable/aigui" />
             </RelativeLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="15dp"
+            android:layout_marginTop="50dp"
             android:gravity="center">
 
             <!-- TextView for the message -->
@@ -57,14 +60,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/click_button"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textStyle="bold"/>
 
             <!-- Button for current location -->
             <Button
                 android:id="@+id/buttonCurrentLocation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:backgroundTint="#A52A2A"
                 android:layout_marginStart="15dp"
+                android:textSize="16dp"
                 android:text="@string/current_location_button" />
         </LinearLayout>
     </LinearLayout>

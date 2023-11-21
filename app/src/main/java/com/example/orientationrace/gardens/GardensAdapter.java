@@ -76,6 +76,7 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
             // Item is clicked, set a visual indication (e.g., gray background)
             holder.itemView.setBackgroundColor(ContextCompat.getColor(context, R.color.gray));
             holder.itemView.setClickable(false);  // Disable click events
+            holder.gardenName.setText("Reached");
         } else {
             // Item is not clicked, set the default state
             holder.itemView.setClickable(true);  // Enable click events
@@ -188,5 +189,4 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
             Log.d(MQTTCONNECTION, "No Publishing");
         }
     }
-
 }

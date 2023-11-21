@@ -53,9 +53,10 @@ public class MainActivity extends AppCompatActivity {
                 // Show Pop up Window to enter username
                 showPopup(v);
             } else {
-                // Create an Intent to start the waiting room activity
+                // Create an Intent to start the Participants activity
                 Intent intent = new Intent(MainActivity.this, ParticipantsActivity.class);
-                intent.putExtra("username", usernameText.getText().toString()); // Send the username to the next activity
+                // Send the username to the next activity
+                intent.putExtra("username", usernameText.getText().toString());
                 startActivity(intent);
             }
         });

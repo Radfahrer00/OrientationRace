@@ -3,6 +3,7 @@ package com.example.orientationrace.activities;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -56,7 +57,7 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
 
     private TextToSpeech textToSpeech;
 
-    private static final long SPEECH_DELAY_MILLIS = 2000; // Délai de 2 secondes
+    private static final long SPEECH_DELAY_MILLIS = 2000; // Delay 2 seconds
     private Handler speechHandler;
 
     private float correctedDegree ;
@@ -77,7 +78,7 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_race_compass);
+        setContentView(R.layout.activity_race);
 
         // Create the get Intent object
         Intent intent = getIntent();
@@ -251,6 +252,7 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         isButtonAvailable = false;
         bCurrentLocation.setEnabled(false);
         bCurrentLocation.setText("Not available");
+        bCurrentLocation.setTextColor(Color.WHITE);
 
         // After 5 minutes, enable the button again
         new Handler().postDelayed(() -> {
