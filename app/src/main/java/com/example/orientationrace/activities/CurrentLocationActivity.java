@@ -26,6 +26,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.orientationrace.databinding.ActivityCurrentLocationBinding;
 import com.google.android.gms.tasks.Task;
 
+/**
+ * Activity to display the current location on a Google Map and automatically finish after 30 seconds.
+ * Uses the FusedLocationProviderClient to retrieve the current location.
+ * Requires the ACCESS_FINE_LOCATION permission to be granted for location services.
+ */
 public class CurrentLocationActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -33,6 +38,14 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
     private static final int REQUEST_FINE_LOCATION_PERMISSION = 1;
     private FusedLocationProviderClient fusedLocationProviderClient;
 
+    /**
+     * Called when the activity is first created. Initializes the activity, sets the content view,
+     * and configures the map. Also adds a delay of 30 seconds before finishing the activity and
+     * displaying a toast message.
+     *
+     * @param savedInstanceState A Bundle containing the activity's previously saved state,
+     *                           or null if there was no saved state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +77,8 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
+     *
+     * @param googleMap The GoogleMap object representing the map.
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -72,7 +87,10 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
         checkAndRequestLocationPermission();
     }
 
-    // Check and request location permission
+    /**
+     * Checks if the ACCESS_FINE_LOCATION permission is already granted.
+     * If granted, proceeds to get the current location. Otherwise, requests the permission.
+     */
     private void checkAndRequestLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
                 PackageManager.PERMISSION_GRANTED) {
@@ -84,10 +102,16 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
         }
     }
 
+    /**
+     * Requests the ACCESS_FINE_LOCATION permission from the user.
+     */
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_FINE_LOCATION_PERMISSION);
     }
 
+    /**
+     * Retrieves the current location using the FusedLocationProviderClient and places a marker on the map.
+     */
     @SuppressLint("MissingPermission")
     private void getCurrentLocation() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -113,12 +137,15 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
                 });
     }
 
-    // Place a marker on the map
+    /**
+     * Places a marker on the map at the specified location and moves the camera to that location.
+     *
+     * @param location The LatLng object representing the location to place the marker.
+     */
     private void placeMarker(LatLng location) {
         if (mMap != null) {
             mMap.addMarker(new MarkerOptions().position(location).title("Current Location"));
-            // Move the camera to the current location
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15)); // Adjust the zoom level as needed
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15));
         }
     }
 }

@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.example.orientationrace.MainActivity;
 import com.example.orientationrace.R;
 
 public class WaitingRoomActivity extends AppCompatActivity {

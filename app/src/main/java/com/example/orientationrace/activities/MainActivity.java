@@ -1,4 +1,4 @@
-package com.example.orientationrace;
+package com.example.orientationrace.activities;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -12,8 +12,12 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.orientationrace.activities.ParticipantsActivity;
+import com.example.orientationrace.R;
 
+/**
+ * MainActivity serves as the entry point for the application where users input their username
+ * to enter the race. It then leads the user to ParticipantsActivity.
+ */
 public class MainActivity extends AppCompatActivity {
 
     // UI Elements
@@ -21,6 +25,17 @@ public class MainActivity extends AppCompatActivity {
     EditText usernameText;
     TextView usernameLabel;
 
+    /**
+     * Called when the activity is first created. This method initializes the activity,
+     * sets the content view, and configures UI elements. It also adds a TextWatcher to the
+     * usernameText to dynamically show/hide the usernameLabel based on user input. The
+     * method sets a click listener for the Enter Race Button, and when clicked, it checks
+     * if a username is entered. If not, it shows a popup requesting the user to enter a
+     * username; otherwise, it starts the ParticipantsActivity with the entered username.
+     *
+     * @param savedInstanceState A Bundle containing the activity's previously saved state,
+     *                           or null if there was no saved state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         usernameText = findViewById(R.id.usernameInput);
         usernameLabel = findViewById(R.id.usernameLabel);
 
+        // Add a TextWatcher to the usernameText to dynamically show/hide the label
         usernameText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int start, int before, int count) {
@@ -62,8 +78,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // Method to show a Popup window requesting the user to type in a username
-    // if he did not do it before clicking the Enter Race Button
+    /**
+     * Method to show a Popup window requesting the user to type in a username
+     * if they did not do it before clicking the Enter Race Button.
+     *
+     * @param view The current view to which the popup is associated.
+     */
     public void showPopup(View view) {
         // Create a Dialog object
         Dialog popupDialog = new Dialog(this);
