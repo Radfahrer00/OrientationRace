@@ -15,7 +15,7 @@ public class ParticipantsDataset {
     private List<Participant> listOfParticipants;
 
     public ParticipantsDataset() {
-        Log.d(TAG, "ParticipantsDataset() called");
+        //Log.d(TAG, "ParticipantsDataset() called");
         listOfParticipants = new ArrayList<>();
     }
 
