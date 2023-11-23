@@ -83,11 +83,11 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         // Create the get Intent object
         Intent intent = getIntent();
         // Receive the username
-        String[] gardenNames = intent.getStringArrayExtra("gardenNames");
+        Garden[] gardenNames = (Garden[]) getIntent().getSerializableExtra("gardenNames");
         username = intent.getStringExtra("username");
 
         for (int i = 0; i < gardenNames.length; i++) {
-            Garden garden = new Garden(gardenNames[i], (long) i);
+            Garden garden = new Garden(gardenNames[i].getGardenName(), gardenNames[i].getLatitude (), gardenNames[i].getLongitude(), (long) i);
             gardensDataset.addGarden(garden);
         }
 

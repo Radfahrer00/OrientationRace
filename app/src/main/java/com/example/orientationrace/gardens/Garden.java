@@ -1,12 +1,16 @@
 package com.example.orientationrace.gardens;
 
+import java.io.Serializable;
+
 /**
  * Represents a garden with its name and a unique key.
  * This class contains the actual data of each garden in the dataset.
  */
-public class Garden {
+public class Garden implements Serializable {
     // Name of the Garden
     private final String gardenName;
+    private double latitude;
+    private double longitude;
     // The unique key associated with the garden. In this app we use keys of type Long
     private Long key;
 
@@ -19,6 +23,19 @@ public class Garden {
     public Garden(String gardenName, Long key) {
         this.gardenName = gardenName;
         this.key = key;
+    }
+
+    public Garden(String gardenName, double latitude, double longitude, Long key) {
+        this.gardenName = gardenName;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.key = key;
+    }
+
+    public Garden(String gardenName, double latitude, double longitude) {
+        this.gardenName = gardenName;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
     /**
@@ -37,6 +54,14 @@ public class Garden {
      */
     public Long getKey() {
         return key;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
     }
 
     /**
