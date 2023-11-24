@@ -110,6 +110,16 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
             }
         });
 
+        gardensAdapter.setOnItemClickListener(new GardensAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position, Garden garden) {
+                Intent intentLocation = new Intent(RaceActivity.this, GardenLocationActivity.class);
+                startActivity(intentLocation);
+            }
+        });
+
+
+
         compassImage = findViewById(R.id.compassImageView);
         bCurrentLocation = findViewById(R.id.buttonCurrentLocation);
         isButtonAvailable = true;
@@ -212,32 +222,7 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
 
     // Method to show a Popup window requesting the user to confirm the checkpoint
     public void showPopup(int position) {
-        // Create a Dialog object
-        Dialog popupDialog = new Dialog(this);
-
-        // Set the content view to the layout created for the popup
-        popupDialog.setContentView(R.layout.garden_reached_confirmation_popup);
-
-        // Get reference to the "Cancel" button in the popup layout and add onClick Listener
-        Button bCancel = popupDialog.findViewById(R.id.buttonCancel);
-        bCancel.setOnClickListener(v -> {
-            // Close popup when the button is clicked
-            popupDialog.dismiss();
-        });
-
-        // Get reference to the "Confirm" button in the popup layout and add onClick Listener
-        Button bConfirm = popupDialog.findViewById(R.id.buttonConfirm);
-        bConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                gardensAdapter.itemClickedState[position] = true;
-                gardensAdapter.notifyItemChanged(position);
-                popupDialog.dismiss();
-            }
-        });
-
-        // Show the popup
-        popupDialog.show();
+        gardensAdapter.showPopup(position);
     }
 
     private void startCurrentLocationActivity() {
