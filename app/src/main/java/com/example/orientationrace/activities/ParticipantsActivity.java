@@ -246,26 +246,6 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
          * @return An array of titles extracted from the JSON array.
          * @throws JSONException If there is an error in JSON parsing.
          */
-        private String[] extractTitlesFromJson(JSONArray jsonArray) throws JSONException {
-            String[] titleArray = new String[jsonArray.length()];
-
-            // Iterate through the JSON array to extract titles.
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject graphItem = jsonArray.getJSONObject(i);
-                if (graphItem.has("title")) {
-                    // Extract and store the title in the titleArray.
-                    titleArray[i] = graphItem.getString("title");
-                }
-            }
-            return titleArray;
-        }
-
-        /**
-         * Extracts titles from a JSON array and stores them in a string array.
-         * @param jsonArray A JSON array containing objects to extract titles from.
-         * @return An array of titles extracted from the JSON array.
-         * @throws JSONException If there is an error in JSON parsing.
-         */
         private String[][] extractGardensFromJson(JSONArray jsonArray) throws JSONException {
             String[][] gardenArray = new String[jsonArray.length()][3];
 
@@ -293,25 +273,9 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
 
         /**
          * Generates an array of random gardens by selecting unique elements from the original garden array.
-         * @param originalGardensArray An array containing the source garden elements.
+         * @param gardenDetailsArray An array containing the source garden elements.
          * @return An array of 6 unique random garden names.
          */
-        private String[] getRandomGardens(String[] originalGardensArray) {
-            String[] randomGardensArray = new String[6];
-            Random random = new Random();
-            // Create a set to keep track of selected indices to ensure uniqueness.
-            Set<Integer> selectedIndices = new HashSet<>();
-
-            // Generate 6 unique random indices and select corresponding garden names.
-            while (selectedIndices.size() < 6) {
-                int randomIndex = random.nextInt(originalGardensArray.length);
-
-                if (selectedIndices.add(randomIndex)) {
-                    randomGardensArray[selectedIndices.size() - 1] = originalGardensArray[randomIndex];
-                }
-            }
-            return randomGardensArray;
-        }
 
         private Garden[] getRandomGardens(String[][] gardenDetailsArray) {
             Garden[] randomGardensArray = new Garden[6];

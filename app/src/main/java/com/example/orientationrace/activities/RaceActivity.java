@@ -10,6 +10,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
@@ -335,6 +336,15 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         try {
             String incomingMessage = new String(message.getPayload());
             Log.d(MQTTCONNECTION, "Message arrived: " + incomingMessage);
+
+            // Use a Handler to post a Runnable to the main (UI) thread
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    // This code will run on the main thread
+                    Toast.makeText(RaceActivity.this, incomingMessage, Toast.LENGTH_SHORT).show();
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
