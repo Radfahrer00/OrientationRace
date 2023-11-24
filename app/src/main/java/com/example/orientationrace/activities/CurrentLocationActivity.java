@@ -59,13 +59,10 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
         mapFragment.getMapAsync(this);
 
         // Delay for 30 seconds before finishing the activity
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // Finish the current activity after 30 seconds
-                finish();
-                Toast.makeText(CurrentLocationActivity.this, "30 seconds are up!", Toast.LENGTH_SHORT).show();
-            }
+        new Handler().postDelayed(() -> {
+            // Finish the current activity after 30 seconds
+            finish();
+            Toast.makeText(CurrentLocationActivity.this, "30 seconds are up!", Toast.LENGTH_SHORT).show();
         }, 8 * 1000); // 30 seconds in milliseconds
     }
 

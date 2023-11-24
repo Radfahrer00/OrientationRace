@@ -297,7 +297,6 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
         String message = mqttManager.getClientId() + " reached Checkpoint Number: " + checkpointNumber;
         try {
             mqttManager.publishMessage(TOPIC_CHECKPOINTS, message);
-            //Toast.makeText(context.getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         } catch (MqttException e) {
             Log.d(MQTTCONNECTION, "No Publishing");
         }

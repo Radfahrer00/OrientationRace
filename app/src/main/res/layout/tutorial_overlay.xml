@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#80000000">
+
+    <TextView
+        android:id="@+id/tutorialText"
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
+        android:text="Click on one of the gardens to see their location,\nLong click on the garden when you reached it."
+        android:textSize="20sp"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="200dp"
+        />
+
+    <TextView
+        android:id="@+id/tutorialTextZwo"
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
+        android:text="Use the See Current Location button to see your location.\nYou can only see your location for 30 seconds every 5 minutes!"
+        android:textSize="20sp"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="400dp"
+        />
+
+    <Button
+        android:id="@+id/closeButton"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:text="Got it!"
+        android:layout_marginTop="600dp"
+        android:layout_centerHorizontal="true"
+        android:textSize="20dp"
+        android:backgroundTint="#A52A2A"/>
+
+</RelativeLayout>

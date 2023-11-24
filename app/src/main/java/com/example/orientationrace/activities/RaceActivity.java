@@ -1,8 +1,8 @@
 package com.example.orientationrace.activities;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -12,7 +12,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.Button;
@@ -43,8 +45,10 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 public class RaceActivity extends AppCompatActivity implements SensorEventListener, OnInitListener, MqttCallback {
 
+    private static final String PREFS_NAME = "MyPrefsFile";
+    private static final String PREF_FIRST_TIME = "first_time";
+
     // Gardens dataset:
-    private static final String TAG = "TAGListOfGardens, GardenActivity";
     public GardensDataset gardensDataset = new GardensDataset();
 
     private ImageView compassImage;
@@ -72,8 +76,6 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     private static final String TOPIC_CHECKPOINTS = "madridOrientationRace/checkpoints";
     private MqttManager mqttManager;
     ExecutorService mqttExecutor;
-    private String username;
-    private int checkpointsReached;
 
 
     @Override
@@ -81,21 +83,31 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_race);
 
-        // Create the get Intent object
-        Intent intent = getIntent();
-        // Receive the username
-        Garden[] gardenNames = (Garden[]) getIntent().getSerializableExtra("gardenNames");
-        username = intent.getStringExtra("username");
+        // Check if it's the first time
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        boolean firstTime = settings.getBoolean(PREF_FIRST_TIME, true);
 
-        for (int i = 0; i < gardenNames.length; i++) {
-            Garden garden = new Garden(gardenNames[i].getGardenName(), gardenNames[i].getLatitude (), gardenNames[i].getLongitude(), (long) i);
+        if (firstTime) {
+            // Show the overlay layout
+            showOverlay();
+
+            // Update the shared preferences to indicate that the user has seen the tutorial
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean(PREF_FIRST_TIME, false);
+            editor.apply();
+        }
+
+        // Receive the Gardens
+        Garden[] gardens = (Garden[]) getIntent().getSerializableExtra("gardenNames");
+
+        for (int i = 0; i < gardens.length; i++) {
+            Garden garden = new Garden(gardens[i].getGardenName(), gardens[i].getLatitude (), gardens[i].getLongitude(), (long) i);
             gardensDataset.addGarden(garden);
         }
 
         textToSpeech = new TextToSpeech(this, this);
 
         initRecyclerView();
-        checkpointsReached = 0;
 
         mqttExecutor = Executors.newSingleThreadExecutor();
         mqttManager = MqttManager.getInstance();
@@ -103,19 +115,11 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         subscribeToTopic();
 
         // Applying OnLongClickListener to our Adapter
-        gardensAdapter.setOnLongClickListener(new GardensAdapter.OnLongClickListener() {
-            @Override
-            public void onLongClick(int position, Garden garden) {
-                showPopup(position);
-            }
-        });
+        gardensAdapter.setOnLongClickListener((position, garden) -> showPopup(position));
 
-        gardensAdapter.setOnItemClickListener(new GardensAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(int position, Garden garden) {
-                Intent intentLocation = new Intent(RaceActivity.this, GardenLocationActivity.class);
-                startActivity(intentLocation);
-            }
+        gardensAdapter.setOnItemClickListener((position, garden) -> {
+            Intent intentLocation = new Intent(RaceActivity.this, GardenLocationActivity.class);
+            startActivity(intentLocation);
         });
 
 
@@ -247,14 +251,6 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
             bCurrentLocation.setText("See current location");
         }, 2 * 10 * 1000); // 5 minutes in milliseconds
     }
-    private float[] normalize(float[] values) {
-        float norm = (float) Math.sqrt(values[0] * values[0] + values[1] * values[1] + values[2] * values[2]);
-        values[0] /= norm;
-        values[1] /= norm;
-        values[2] /= norm;
-        return values;
-    }
-
 
     @Override
     public void onInit(int status) {
@@ -276,6 +272,7 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         // Utiliser le TextToSpeech pour lire l'orientation
         textToSpeech.speak("" + orientation, TextToSpeech.QUEUE_FLUSH, null, null);
     }
+
     private void startSpeechTimer() {
         speechHandler.postDelayed(new Runnable() {
             @Override
@@ -297,15 +294,6 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    private void publishCheckpointReached(int checkpointNumber) {
-        String message = username + " reached Checkpoint Number: " + checkpointNumber;
-        try {
-            mqttManager.publishMessage(TOPIC_CHECKPOINTS, message);
-        } catch (MqttException e) {
-            Log.d(MQTTCONNECTION, "No Publishing");
-        }
-    }
-
     @Override
     public void connectionLost(Throwable cause) {
         // Handle the case when the connection to the broker is lost
@@ -323,12 +311,9 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
             Log.d(MQTTCONNECTION, "Message arrived: " + incomingMessage);
 
             // Use a Handler to post a Runnable to the main (UI) thread
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    // This code will run on the main thread
-                    Toast.makeText(RaceActivity.this, incomingMessage, Toast.LENGTH_SHORT).show();
-                }
+            new Handler(Looper.getMainLooper()).post(() -> {
+                // This code will run on the main thread
+                Toast.makeText(RaceActivity.this, incomingMessage, Toast.LENGTH_SHORT).show();
             });
         } catch (Exception e) {
             e.printStackTrace();
@@ -338,5 +323,18 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void deliveryComplete(IMqttDeliveryToken token) {
 
+    }
+
+    private void showOverlay() {
+        View overlayView = LayoutInflater.from(this).inflate(R.layout.tutorial_overlay, null);
+        ViewGroup rootView = findViewById(android.R.id.content);
+        rootView.addView(overlayView);
+
+        // Add OnClickListener to the close button
+        Button closeButton = overlayView.findViewById(R.id.closeButton);
+        closeButton.setOnClickListener(v -> {
+            // Remove the overlay view when the close button is clicked
+            rootView.removeView(overlayView);
+        });
     }
 }
