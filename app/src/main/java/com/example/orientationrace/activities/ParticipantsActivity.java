@@ -200,6 +200,18 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
             Log.d(LOADWEBTAG, threadAndClass + ": message received from the background thread");
 
             if (msg.getData() != null) {
+                // Check if the message contains the "gardens" key
+                if (msg.getData().containsKey("gardens")) {
+                    // Retrieve the array of Garden objects from the message
+                    Garden[] gardens = (Garden[]) msg.getData().getSerializable("gardens");
+
+                    // Now you can use the 'gardens' array in your activity
+                    randomGardensArray = gardens;
+                }
+            }
+
+            /*
+            if (msg.getData() != null) {
                 String string_result = msg.getData().getString("text");
                 if (string_result != null) {
                     try {
@@ -220,6 +232,8 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
                     }
                 }
             }
+             */
+            text.setText("Gardens loaded");
         }
 
         // Processes the JSON Data to be ready to be parsed
@@ -227,9 +241,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
             try {
                 jsonObject = new JSONObject(jsonData);
                 JSONArray graph = jsonObject.getJSONArray("@graph");
-                //String[] gardenTitlesArray = extractTitlesFromJson(graph);
                 String[][] gardenInfoArray = extractGardensFromJson(graph);
-                //randomGardensArray = getRandomGardens(gardenTitlesArray);
                 randomGardensArray = getRandomGardens(gardenInfoArray);
 
                 text.setText(Arrays.toString(randomGardensArray));

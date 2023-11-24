@@ -7,12 +7,20 @@ import android.os.Message;
 import android.util.Log;
 
 import com.example.orientationrace.activities.ParticipantsActivity;
+import com.example.orientationrace.gardens.Garden;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
 
 public class LoadURLContents implements Runnable {
     // Class to download a text-based content (e.g. HTML, XML, JSON, ...) from a URL
@@ -75,6 +83,13 @@ public class LoadURLContents implements Runnable {
                     response += line + "\n";
                     line = in.readLine();
                 }
+
+                // Parse the JSON string and return an array of 6 Gardens
+                Garden[] gardens = parseJsonString(response);
+
+                // Send the array of Gardens to the UI thread using the handler
+                msg_data.putSerializable("gardens", gardens);
+                
             } else { // content type not supported
                 response = "Actual content type different from expected ("+
                         actualContentType + " vs " + expectedContent_type + ")";
@@ -90,5 +105,74 @@ public class LoadURLContents implements Runnable {
         }
         msg.sendToTarget();
     }
+
+    private Garden[] parseJsonString(String jsonString) throws JSONException {
+        JSONObject jsonObject = new JSONObject(jsonString);
+        JSONArray graph = jsonObject.getJSONArray("@graph");
+
+        String[][] gardenInfoArray = extractGardensFromJson(graph);
+        Garden[] randomGardensArray = getRandomGardens(gardenInfoArray);
+        return randomGardensArray;
+    }
+
+    /**
+     * Extracts titles from a JSON array and stores them in a string array.
+     * @param jsonArray A JSON array containing objects to extract titles from.
+     * @return An array of titles extracted from the JSON array.
+     * @throws JSONException If there is an error in JSON parsing.
+     */
+    private String[][] extractGardensFromJson(JSONArray jsonArray) throws JSONException {
+        String[][] gardenArray = new String[jsonArray.length()][3];
+
+        // Iterate through the JSON array to extract titles, latitude and longitude.
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject graphItem = jsonArray.getJSONObject(i);
+            // Extract and store the title in the gardenArray.
+            if (graphItem.has("title")) {
+                // Extract and store the title in the gardenArray.
+                gardenArray[i][0] = graphItem.getString("title");
+            }
+
+            // Extract and store the latitude in the gardenArray.
+            if (graphItem.has("location") && graphItem.getJSONObject("location").has("latitude")) {
+                gardenArray[i][1] = String.valueOf(graphItem.getJSONObject("location").getDouble("latitude"));
+            }
+
+            // Extract and store the longitude in the gardenArray.
+            if (graphItem.has("location") && graphItem.getJSONObject("location").has("longitude")) {
+                gardenArray[i][2] = String.valueOf(graphItem.getJSONObject("location").getDouble("longitude"));
+            }
+        }
+        return gardenArray;
+    }
+
+    /**
+     * Generates an array of random gardens by selecting unique elements from the original garden array.
+     * @param gardenDetailsArray An array containing the source garden elements.
+     * @return An array of 6 unique random garden names.
+     */
+
+    private Garden[] getRandomGardens(String[][] gardenDetailsArray) {
+        Garden[] randomGardensArray = new Garden[6];
+        Random random = new Random();
+        // Create a set to keep track of selected indices to ensure uniqueness.
+        Set<Integer> selectedIndices = new HashSet<>();
+
+        // Generate 6 unique random indices and select corresponding garden details.
+        while (selectedIndices.size() < 6) {
+            int randomIndex = random.nextInt(gardenDetailsArray.length);
+
+            if (selectedIndices.add(randomIndex)) {
+                String title = gardenDetailsArray[randomIndex][0];
+                double latitude = Double.parseDouble(gardenDetailsArray[randomIndex][1]);
+                double longitude = Double.parseDouble(gardenDetailsArray[randomIndex][2]);
+
+                randomGardensArray[selectedIndices.size() - 1] = new Garden(title, latitude, longitude);
+            }
+        }
+        return randomGardensArray;
+    }
+
+
 }
 
