@@ -1,17 +1,15 @@
 package com.example.orientationrace.gardens;
 
-import static com.example.orientationrace.activities.RaceActivity.MQTTCONNECTION;
+import static com.example.orientationrace.views.activities.RaceActivity.MQTTCONNECTION;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -19,8 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.orientationrace.MqttManager;
 import com.example.orientationrace.R;
-import com.example.orientationrace.activities.GardenLocationActivity;
-import com.example.orientationrace.activities.RaceActivity;
+import com.example.orientationrace.views.activities.GardenLocationActivity;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;

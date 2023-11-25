@@ -1,4 +1,4 @@
-package com.example.orientationrace.activities;
+package com.example.orientationrace.views.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,8 +15,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.speech.tts.TextToSpeech;
@@ -55,8 +53,10 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private Sensor magnetometer;
-
-    private float currentDegree = 0f;
+    private float[] floatGravity = new float[3];
+    private float[] floatGeoMagnetic = new float[3];
+    private float[] floatOrientation = new float[3];
+    private float[] floatRotationMatrix = new float[9];
 
     final GardensAdapter gardensAdapter = new GardensAdapter(gardensDataset, this);
 
@@ -82,20 +82,13 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_race);
+        textToSpeech = new TextToSpeech(this, this);
 
-        // Check if it's the first time
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        boolean firstTime = settings.getBoolean(PREF_FIRST_TIME, true);
+        // Get references to UI elements
+        compassImage = findViewById(R.id.compassImageView);
+        bCurrentLocation = findViewById(R.id.buttonCurrentLocation);
 
-        if (firstTime) {
-            // Show the overlay layout
-            showOverlay();
-
-            // Update the shared preferences to indicate that the user has seen the tutorial
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putBoolean(PREF_FIRST_TIME, false);
-            editor.apply();
-        }
+        showTutorial();
 
         // Receive the Gardens
         Garden[] gardens = (Garden[]) getIntent().getSerializableExtra("gardenNames");
@@ -104,8 +97,6 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
             Garden garden = new Garden(gardens[i].getGardenName(), gardens[i].getLatitude (), gardens[i].getLongitude(), (long) i);
             gardensDataset.addGarden(garden);
         }
-
-        textToSpeech = new TextToSpeech(this, this);
 
         initRecyclerView();
 
@@ -123,9 +114,6 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         });
 
 
-
-        compassImage = findViewById(R.id.compassImageView);
-        bCurrentLocation = findViewById(R.id.buttonCurrentLocation);
         isButtonAvailable = true;
 
         // Initialize the sensor manager
@@ -143,6 +131,8 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         });
     }
 
+
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -159,44 +149,24 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor == accelerometer) {
-            // Handle accelerometer data
-        } else if (event.sensor == magnetometer) {
-            // Handle magnetometer data
-            float degree = calculateDegree(event.values);
+            floatGravity = event.values;
+            SensorManager.getRotationMatrix(floatRotationMatrix, null, floatGravity, floatGeoMagnetic);
+            SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
 
-            rotateCompass(degree);
+            compassImage.setRotation((float) (-floatOrientation[0] * 180 / 3.14159));
+
+        } else if (event.sensor == magnetometer) {
+            floatGeoMagnetic = event.values;
+            SensorManager.getRotationMatrix(floatRotationMatrix, null, floatGravity, floatGeoMagnetic);
+            SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
+
+            compassImage.setRotation((float) (-floatOrientation[0] * 180 / 3.14159));
         }
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
-    }
-
-    private float calculateDegree(float[] values) {
-        // Calculer l'azimut à partir des données du magnétomètre
-        //values = normalize(values);
-        float azimuth = (float) Math.toDegrees(Math.atan2(values[1], values[0]));
-        // Correction pour assurer que l'azimut est dans la plage [0, 360)
-        azimuth = (azimuth + 360) % 360;
-
-        return azimuth;
-    }
-    private static final float INITIAL_ROTATION_OFFSET = 300.0f; // Ajustez cette valeur selon votre image
-
-    private void rotateCompass(float degree) {
-        correctedDegree = currentDegree + INITIAL_ROTATION_OFFSET;
-        //speakOrientation(getOrientationLabel(degree));
-        RotateAnimation ra = new RotateAnimation(
-                correctedDegree, degree + INITIAL_ROTATION_OFFSET,
-                Animation.RELATIVE_TO_SELF, 0.5f,
-                Animation.RELATIVE_TO_SELF, 0.5f
-        );
-        ra.setDuration(250);
-        ra.setFillAfter(true);
-
-        compassImage.startAnimation(ra);
-        currentDegree = degree;
     }
 
     private String getOrientationLabel(float degree) {
@@ -323,6 +293,22 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void deliveryComplete(IMqttDeliveryToken token) {
 
+    }
+
+    private void showTutorial() {
+        // Check if it's the first time
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        boolean firstTime = settings.getBoolean(PREF_FIRST_TIME, true);
+
+        if (firstTime) {
+            // Show the overlay layout
+            showOverlay();
+
+            // Update the shared preferences to indicate that the user has seen the tutorial
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean(PREF_FIRST_TIME, false);
+            editor.apply();
+        }
     }
 
     private void showOverlay() {

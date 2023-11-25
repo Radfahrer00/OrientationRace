@@ -6,7 +6,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.example.orientationrace.activities.ParticipantsActivity;
+import com.example.orientationrace.views.activities.ParticipantsActivity;
 import com.example.orientationrace.gardens.Garden;
 
 import org.json.JSONArray;
