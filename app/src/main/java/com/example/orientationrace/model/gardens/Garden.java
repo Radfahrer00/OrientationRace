@@ -25,6 +25,14 @@ public class Garden implements Serializable {
         this.key = key;
     }
 
+    /**
+     * Constructor for creating a new Garden object with the specified name, latitude, longitude, and key.
+     *
+     * @param gardenName The name of the garden.
+     * @param latitude   The latitude of the location of the garden.
+     * @param longitude  The longitude of the location of the garden.
+     * @param key        The unique key associated with the garden.
+     */
     public Garden(String gardenName, double latitude, double longitude, Long key) {
         this.gardenName = gardenName;
         this.latitude = latitude;
@@ -32,6 +40,13 @@ public class Garden implements Serializable {
         this.key = key;
     }
 
+    /**
+     * Constructor for creating a new Garden object with the specified name, latitude, and longitude.
+     *
+     * @param gardenName The name of the garden.
+     * @param latitude   The latitude of the location of the garden.
+     * @param longitude  The longitude of the location of the garden.
+     */
     public Garden(String gardenName, double latitude, double longitude) {
         this.gardenName = gardenName;
         this.latitude = latitude;
@@ -56,10 +71,20 @@ public class Garden implements Serializable {
         return key;
     }
 
+    /**
+     * Gets the latitude of the garden.
+     *
+     * @return The latitude of the garden.
+     */
     public double getLatitude() {
         return latitude;
     }
 
+    /**
+     * Gets the longitude of the garden.
+     *
+     * @return The longitude of the garden.
+     */
     public double getLongitude() {
         return longitude;
     }

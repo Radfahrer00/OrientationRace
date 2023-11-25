@@ -112,6 +112,7 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
         } else {
             // Item is not clicked, set the default state
             holder.itemView.setClickable(true);  // Enable click events
+            // LongClickListener for showing a popup window to confirm that the checkpoint was reached
             holder.itemView.setOnLongClickListener(v -> {
                 if (!itemClickedState[itemPosition]) {
                     showPopup(itemPosition);
@@ -119,6 +120,7 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
                 return true;
             });
 
+            // OnClickListener to see the location of the garden on the map
             holder.itemView.setOnClickListener(view -> {
                 if (!itemClickedState[itemPosition]) {
                     Intent intent = new Intent(context, GardenLocationActivity.class);
@@ -143,13 +145,9 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
         return dataset.getSize();
     }
 
-    public void setOnLongClickListener() {
+    public void setOnLongClickListener() {}
 
-    }
-
-    public void setOnItemClickListener() {
-
-    }
+    public void setOnItemClickListener() {}
 
 
     // ------ Implementation of methods of MqttCallback ------ //
@@ -267,13 +265,10 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
 
         // Create a Dialog object
         Dialog popupDialog = new Dialog(context);
-
         // Set the content view to the layout created for the popup
         popupDialog.setContentView(R.layout.race_won_popup);
-
         // Show the popup
         popupDialog.show();
-
     }
 
     /**
