@@ -1,4 +1,4 @@
-package com.example.orientationrace.activities;
+package com.example.orientationrace.views.activities;
 
 import android.app.Dialog;
 import android.content.Intent;
