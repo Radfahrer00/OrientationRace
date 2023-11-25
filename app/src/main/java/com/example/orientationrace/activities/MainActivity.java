@@ -11,14 +11,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.orientationrace.R;
+import com.example.orientationrace.viewmodels.MainViewModel;
 
 /**
  * MainActivity serves as the entry point for the application where users input their username
  * to enter the race. It then leads the user to ParticipantsActivity.
  */
 public class MainActivity extends AppCompatActivity {
+
+    private MainViewModel viewModel;
 
     // UI Elements
     Button bEnterRace;
@@ -41,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+
         // Get references to UI elements
         bEnterRace = findViewById(R.id.buttonEnterRace);
         usernameText = findViewById(R.id.usernameInput);
@@ -60,19 +66,21 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
+                // Update ViewModel with the entered username
+                viewModel.setUsername(editable.toString());
             }
         });
 
         // Listener for the Enter Race Button
         bEnterRace.setOnClickListener(v -> {
-            if (usernameText.getText().toString().trim().isEmpty()) {
-                // Show Pop up Window to enter username
+            // Retrieve username from ViewModel
+            String enteredUsername = viewModel.getUsername().getValue();
+
+            if (enteredUsername == null || enteredUsername.trim().isEmpty()) {
                 showPopup(v);
             } else {
-                // Create an Intent to start the Participants activity
                 Intent intent = new Intent(MainActivity.this, ParticipantsActivity.class);
-                // Send the username to the next activity
-                intent.putExtra("username", usernameText.getText().toString());
+                intent.putExtra("username", enteredUsername);
                 startActivity(intent);
             }
         });

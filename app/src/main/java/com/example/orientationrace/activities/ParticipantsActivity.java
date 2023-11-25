@@ -28,14 +28,7 @@ import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -57,7 +50,6 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
     private static final String CONTENT_TYPE_JSON = "application/json";
     private TextView text;
     ExecutorService downloadExecutor;
-    JSONObject jsonObject;
     Garden[] randomGardensArray;
 
     // MQTT broker configurations
@@ -69,7 +61,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
     Button bInformParticipants;
 
     // Condition Handler for Activity change
-    private Handler checkConditionsHandler = new Handler();
+    private final Handler checkConditionsHandler = new Handler();
     private static final int CHECK_CONDITIONS_INTERVAL = 8000; // 8 seconds
 
     // Variable for the number of participants required to start the race
@@ -114,20 +106,15 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
         mqttManager = MqttManager.getInstance();
         mqttManager.setClientId(client_Id);
         // Submit the MQTT-related tasks to the executor for background execution
-        mqttExecutor.submit(new Runnable() {
-            @Override
-            public void run() {
-                // Connect to the MQTT broker when the activity starts.
-                mqttManager.connect(client_Id);
-                subscribeToTopic(TOPIC_PARTICIPANTS);
-                publishUserConnected();
-            }
+        mqttExecutor.submit(() -> {
+            // Connect to the MQTT broker when the activity starts.
+            mqttManager.connect(client_Id);
+            subscribeToTopic();
+            publishUserConnected();
         });
 
         // On Click Listener for The Inform Participants Button about the connection
-        bInformParticipants.setOnClickListener(v -> {
-            publishUserConnected();
-        });
+        bInformParticipants.setOnClickListener(v -> publishUserConnected());
 
         // Check repeatedly if the conditions are met to go to the next activity
         checkConditionsHandler.postDelayed(checkConditionsRunnable, CHECK_CONDITIONS_INTERVAL);
@@ -137,7 +124,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
      * Runnable used to check conditions for initiating the race. When the sufficient participants
      * are connected and the checkpoints have been set.
      */
-    private Runnable checkConditionsRunnable = new Runnable() {
+    private final Runnable checkConditionsRunnable = new Runnable() {
         @Override
         public void run() {
             if (participantsDataset.getSize() >= PARTICIPANTS_REQUIRED && randomGardensArray != null && randomGardensArray.length != 0) {
@@ -182,9 +169,9 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
     /**
      * Subscribes to the MQTT topic for receiving messages about connected participants.
      */
-    private void subscribeToTopic(String topic) {
+    private void subscribeToTopic() {
         try {
-            mqttManager.subscribeToTopic(topic, ParticipantsActivity.this);
+            mqttManager.subscribeToTopic(ParticipantsActivity.TOPIC_PARTICIPANTS, ParticipantsActivity.this);
             Log.d(MQTTCONNECTION, "Subscription successful");
         } catch (MqttException e) {
             Log.d(MQTTCONNECTION, "No Subscription");
@@ -208,107 +195,8 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
                     randomGardensArray = gardens;
                 }
             }
-
-            /*
-            if (msg.getData() != null) {
-                String string_result = msg.getData().getString("text");
-                if (string_result != null) {
-                    try {
-                        processJsonData(string_result);
-                    } catch (Exception e) {
-                        // Catch other exceptions including UnknownHostException
-                        e.printStackTrace();
-                        Log.e(LOADWEBTAG, "Exception occurred", e);
-                        if (e instanceof UnknownHostException) {
-                            // Handle UnknownHostException (network unavailable or host not reachable)
-                            Log.e(LOADWEBTAG, "UnknownHostException: Unable to resolve host", e);
-                            // Show a message to the user or take appropriate action
-                            runOnUiThread(() -> {
-                                // Update UI or show a message indicating network issues
-                                text.setText("Network unavailable. Please check your internet connection.");
-                            });
-                        }
-                    }
-                }
-            }
-             */
             text.setText("Gardens loaded");
         }
-
-        // Processes the JSON Data to be ready to be parsed
-        private void processJsonData(String jsonData) {
-            try {
-                jsonObject = new JSONObject(jsonData);
-                JSONArray graph = jsonObject.getJSONArray("@graph");
-                String[][] gardenInfoArray = extractGardensFromJson(graph);
-                randomGardensArray = getRandomGardens(gardenInfoArray);
-
-                text.setText(Arrays.toString(randomGardensArray));
-
-                //text.setText(Arrays.toString(randomGardensArray));
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        /**
-         * Extracts titles from a JSON array and stores them in a string array.
-         * @param jsonArray A JSON array containing objects to extract titles from.
-         * @return An array of titles extracted from the JSON array.
-         * @throws JSONException If there is an error in JSON parsing.
-         */
-        private String[][] extractGardensFromJson(JSONArray jsonArray) throws JSONException {
-            String[][] gardenArray = new String[jsonArray.length()][3];
-
-            // Iterate through the JSON array to extract titles, latitude and longitude.
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject graphItem = jsonArray.getJSONObject(i);
-                // Extract and store the title in the gardenArray.
-                if (graphItem.has("title")) {
-                    // Extract and store the title in the gardenArray.
-                    gardenArray[i][0] = graphItem.getString("title");
-                }
-
-                // Extract and store the latitude in the gardenArray.
-                if (graphItem.has("location") && graphItem.getJSONObject("location").has("latitude")) {
-                    gardenArray[i][1] = String.valueOf(graphItem.getJSONObject("location").getDouble("latitude"));
-                }
-
-                // Extract and store the longitude in the gardenArray.
-                if (graphItem.has("location") && graphItem.getJSONObject("location").has("longitude")) {
-                    gardenArray[i][2] = String.valueOf(graphItem.getJSONObject("location").getDouble("longitude"));
-                }
-            }
-            return gardenArray;
-        }
-
-        /**
-         * Generates an array of random gardens by selecting unique elements from the original garden array.
-         * @param gardenDetailsArray An array containing the source garden elements.
-         * @return An array of 6 unique random garden names.
-         */
-
-        private Garden[] getRandomGardens(String[][] gardenDetailsArray) {
-            Garden[] randomGardensArray = new Garden[6];
-            Random random = new Random();
-            // Create a set to keep track of selected indices to ensure uniqueness.
-            Set<Integer> selectedIndices = new HashSet<>();
-
-            // Generate 6 unique random indices and select corresponding garden details.
-            while (selectedIndices.size() < 6) {
-                int randomIndex = random.nextInt(gardenDetailsArray.length);
-
-                if (selectedIndices.add(randomIndex)) {
-                    String title = gardenDetailsArray[randomIndex][0];
-                    double latitude = Double.parseDouble(gardenDetailsArray[randomIndex][1]);
-                    double longitude = Double.parseDouble(gardenDetailsArray[randomIndex][2]);
-
-                    randomGardensArray[selectedIndices.size() - 1] = new Garden(title, latitude, longitude);
-                }
-            }
-            return randomGardensArray;
-        }
-
     };
 
     /**
@@ -361,12 +249,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
             if (!participantExists && !incomingMessage.equals(client_Id)) {
                 Participant newParticipant = new Participant(incomingMessage, userCount);
                 participantsDataset.addParticipant(newParticipant);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        recyclerView.getAdapter().notifyDataSetChanged();
-                    }
-                });
+                runOnUiThread(() -> recyclerView.getAdapter().notifyDataSetChanged());
                 userCount = Long.sum(userCount, (long) 1);
             }
         } catch (Exception e) {
