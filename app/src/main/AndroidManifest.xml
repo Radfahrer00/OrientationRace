@@ -37,21 +37,21 @@
             android:value="YOUR_API_KEY" />
 
         <activity
-            android:name=".activities.GardenLocationActivity"
+            android:name=".views.activities.GardenLocationActivity"
             android:exported="false"
             android:label="@string/title_activity_garden_location" />
         <activity
-            android:name=".activities.CurrentLocationActivity"
+            android:name=".views.activities.CurrentLocationActivity"
             android:exported="false"
             android:label="@string/title_activity_current_location" />
         <activity
-            android:name=".activities.RaceActivity"
+            android:name=".views.activities.RaceActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.ParticipantsActivity"
+            android:name=".views.activities.ParticipantsActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".views.activities.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

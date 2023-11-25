@@ -1,4 +1,4 @@
-package com.example.orientationrace.activities;
+package com.example.orientationrace.views.activities;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
