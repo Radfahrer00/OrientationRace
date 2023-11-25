@@ -3,6 +3,7 @@ package com.example.orientationrace.views.activities;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -13,6 +14,7 @@ import android.os.Handler;
 import android.widget.Toast;
 
 import com.example.orientationrace.R;
+import com.example.orientationrace.viewmodels.CurrentLocationViewModel;
 import com.google.android.gms.location.CurrentLocationRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -35,6 +37,7 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
 
     private GoogleMap mMap;
     private ActivityCurrentLocationBinding binding;
+    private CurrentLocationViewModel currentLocationViewModel;
     private static final int REQUEST_FINE_LOCATION_PERMISSION = 1;
     private FusedLocationProviderClient fusedLocationProviderClient;
 
@@ -52,6 +55,8 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
 
         binding = ActivityCurrentLocationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        currentLocationViewModel = new ViewModelProvider(this).get(CurrentLocationViewModel.class);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -81,8 +86,10 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        checkAndRequestLocationPermission();
+        //checkAndRequestLocationPermission();
+        currentLocationViewModel.checkAndRequestLocationPermission();
     }
+
 
     /**
      * Checks if the ACCESS_FINE_LOCATION permission is already granted.
