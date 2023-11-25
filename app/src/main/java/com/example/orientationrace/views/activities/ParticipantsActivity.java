@@ -2,7 +2,6 @@ package com.example.orientationrace.views.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,7 +23,6 @@ import com.example.orientationrace.model.participants.Participant;
 import com.example.orientationrace.model.participants.ParticipantsAdapter;
 import com.example.orientationrace.model.participants.ParticipantsDataset;
 import com.example.orientationrace.R;
-import com.example.orientationrace.viewmodels.ParticipantsViewModel;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -38,8 +36,6 @@ import java.util.concurrent.Executors;
  * Activity responsible for showing participants and initiating the race when conditions are met.
  */
 public class ParticipantsActivity extends AppCompatActivity implements MqttCallback {
-
-    ParticipantsViewModel participantsViewModel;
 
     // Participants dataset
     public ParticipantsDataset participantsDataset = new ParticipantsDataset();
@@ -84,8 +80,6 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_participants);
-
-        participantsViewModel = new ViewModelProvider(this).get(ParticipantsViewModel.class);
 
         // Create the get Intent object
         Intent intent = getIntent();

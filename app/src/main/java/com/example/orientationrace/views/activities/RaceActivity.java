@@ -46,8 +46,7 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     private static final String PREFS_NAME = "MyPrefsFile";
     private static final String PREF_FIRST_TIME = "first_time";
 
-    // Gardens dataset:
-    public GardensDataset gardensDataset = new GardensDataset();
+
 
     private ImageView compassImage;
     private SensorManager sensorManager;
@@ -58,6 +57,8 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     private float[] floatOrientation = new float[3];
     private float[] floatRotationMatrix = new float[9];
 
+    // Gardens dataset:
+    public GardensDataset gardensDataset = new GardensDataset();
     final GardensAdapter gardensAdapter = new GardensAdapter(gardensDataset, this);
 
     private TextToSpeech textToSpeech;

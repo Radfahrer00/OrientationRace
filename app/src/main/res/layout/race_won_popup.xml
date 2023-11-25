@@ -1,20 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="200dp"
-    android:layout_height="150dp"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:layout_gravity="center"
-    android:backgroundTint="#A52A2A">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="You reached all checkpoints and won the race!\n Congratualtions!"
-        android:gravity="center"
-        android:textSize="20dp"
-        android:textStyle="bold"
-        android:textColor="@color/gray"/>
+    <ImageView
+        android:id="@+id/myImageView"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:src="@drawable/race_won_picture"
+        android:layout_centerInParent="true" />
 
-</LinearLayout>
+</RelativeLayout>

@@ -264,6 +264,16 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
         } catch (MqttException e) {
             Log.d(MQTTCONNECTION, "No Publishing");
         }
+
+        // Create a Dialog object
+        Dialog popupDialog = new Dialog(context);
+
+        // Set the content view to the layout created for the popup
+        popupDialog.setContentView(R.layout.race_won_popup);
+
+        // Show the popup
+        popupDialog.show();
+
     }
 
     /**
