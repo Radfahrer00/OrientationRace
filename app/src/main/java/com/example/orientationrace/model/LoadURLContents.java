@@ -1,4 +1,4 @@
-package com.example.orientationrace;
+package com.example.orientationrace.model;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -7,7 +7,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.example.orientationrace.views.activities.ParticipantsActivity;
-import com.example.orientationrace.gardens.Garden;
+import com.example.orientationrace.model.gardens.Garden;
 
 import org.json.JSONArray;
 import org.json.JSONException;

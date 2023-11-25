@@ -1,26 +1,26 @@
 package com.example.orientationrace.views.activities;
 
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
 
 import com.example.orientationrace.R;
-import com.google.android.gms.maps.CameraUpdateFactory;
+import com.example.orientationrace.viewmodels.GardenLocationViewModel;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.orientationrace.databinding.ActivityGardenLocationBinding;
 
 public class GardenLocationActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private ActivityGardenLocationBinding binding;
-
     private double latitude;
     private double longitude;
+
+    private GardenLocationViewModel gardenLocationViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +28,8 @@ public class GardenLocationActivity extends FragmentActivity implements OnMapRea
 
         binding = ActivityGardenLocationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        gardenLocationViewModel = new ViewModelProvider(this).get(GardenLocationViewModel.class);
 
         Intent intent = getIntent();
 
@@ -54,9 +56,6 @@ public class GardenLocationActivity extends FragmentActivity implements OnMapRea
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker at the location of the garden and move the camera
-        LatLng garden = new LatLng(latitude, longitude);
-        mMap.addMarker(new MarkerOptions().position(garden).title("Garden"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(garden, 15));
+        gardenLocationViewModel.placeMarker(mMap, latitude, longitude);
     }
 }

@@ -30,11 +30,11 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.orientationrace.MqttManager;
+import com.example.orientationrace.model.MqttManager;
 import com.example.orientationrace.R;
-import com.example.orientationrace.gardens.Garden;
-import com.example.orientationrace.gardens.GardensAdapter;
-import com.example.orientationrace.gardens.GardensDataset;
+import com.example.orientationrace.model.gardens.Garden;
+import com.example.orientationrace.model.gardens.GardensAdapter;
+import com.example.orientationrace.model.gardens.GardensDataset;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -130,8 +130,6 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
             }
         });
     }
-
-
 
     @Override
     protected void onResume() {

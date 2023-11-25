@@ -1,4 +1,4 @@
-package com.example.orientationrace.participants;
+package com.example.orientationrace.model.participants;
 
 public class Participant {
     // This class contains the actual data of each Participant of the dataset

@@ -1,4 +1,4 @@
-package com.example.orientationrace.gardens;
+package com.example.orientationrace.model.gardens;
 
 import android.util.Log;
 

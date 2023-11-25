@@ -1,4 +1,4 @@
-package com.example.orientationrace.gardens;
+package com.example.orientationrace.model.gardens;
 
 import static com.example.orientationrace.views.activities.RaceActivity.MQTTCONNECTION;
 
@@ -15,7 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.orientationrace.MqttManager;
+import com.example.orientationrace.model.MqttManager;
 import com.example.orientationrace.R;
 import com.example.orientationrace.views.activities.GardenLocationActivity;
 

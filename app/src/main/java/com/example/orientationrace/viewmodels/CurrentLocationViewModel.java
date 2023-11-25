@@ -27,7 +27,6 @@ import com.google.android.gms.tasks.Task;
 public class CurrentLocationViewModel extends AndroidViewModel {
 
     private GoogleMap mMap;
-    private MutableLiveData<Location> currentLocation = new MutableLiveData<>();
     private FusedLocationProviderClient fusedLocationProviderClient;
     private static final int REQUEST_FINE_LOCATION_PERMISSION = 1;
 

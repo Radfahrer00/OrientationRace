@@ -1,8 +1,4 @@
-package com.example.orientationrace.participants;
-
-import android.util.Log;
-
-import com.example.orientationrace.participants.Participant;
+package com.example.orientationrace.model.participants;
 
 import java.util.ArrayList;
 import java.util.List;

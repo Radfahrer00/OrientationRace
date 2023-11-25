@@ -1,8 +1,8 @@
 package com.example.orientationrace.participants;
 
-import junit.framework.TestCase;
+import com.example.orientationrace.model.participants.Participant;
 
-import org.junit.Test;
+import junit.framework.TestCase;
 
 public class ParticipantTest extends TestCase {
 

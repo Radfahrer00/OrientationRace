@@ -1,32 +1,18 @@
 package com.example.orientationrace.views.activities;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Toast;
 
 import com.example.orientationrace.R;
 import com.example.orientationrace.viewmodels.CurrentLocationViewModel;
-import com.google.android.gms.location.CurrentLocationRequest;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.Priority;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.orientationrace.databinding.ActivityCurrentLocationBinding;
-import com.google.android.gms.tasks.Task;
 
 /**
  * Activity to display the current location on a Google Map and automatically finish after 30 seconds.
@@ -38,8 +24,6 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
     private GoogleMap mMap;
     private ActivityCurrentLocationBinding binding;
     private CurrentLocationViewModel currentLocationViewModel;
-    private static final int REQUEST_FINE_LOCATION_PERMISSION = 1;
-    private FusedLocationProviderClient fusedLocationProviderClient;
 
     /**
      * Called when the activity is first created. Initializes the activity, sets the content view,
@@ -68,7 +52,7 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
             // Finish the current activity after 30 seconds
             finish();
             Toast.makeText(CurrentLocationActivity.this, "30 seconds are up!", Toast.LENGTH_SHORT).show();
-        }, 15 * 1000); // 30 seconds in milliseconds
+        }, 10 * 1000); // 30 seconds in milliseconds
     }
 
     /**
@@ -86,7 +70,6 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        //checkAndRequestLocationPermission();
         currentLocationViewModel.checkAndRequestLocationPermission(mMap);
     }
 }

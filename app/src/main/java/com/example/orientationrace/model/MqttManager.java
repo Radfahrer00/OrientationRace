@@ -1,4 +1,4 @@
-package com.example.orientationrace;
+package com.example.orientationrace.model;
 
 import android.util.Log;
 

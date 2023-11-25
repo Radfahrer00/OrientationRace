@@ -1,4 +1,4 @@
-package com.example.orientationrace.participants;
+package com.example.orientationrace.model.participants;
 
 import android.util.Log;
 import android.view.LayoutInflater;
