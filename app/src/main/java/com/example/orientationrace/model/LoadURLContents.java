@@ -48,7 +48,7 @@ public class LoadURLContents implements Runnable {
         Message msg = creator.obtainMessage();
         Bundle msg_data = msg.getData();
 
-        String response = ""; // This string will contain the loaded contents of a text resource
+        StringBuilder response = new StringBuilder(); // This string will contain the loaded contents of a text resource
         HttpURLConnection urlConnection;
 
         // Build the string with thread and Class names (used in logs):
@@ -80,28 +80,28 @@ public class LoadURLContents implements Runnable {
                 // We read the text contents line by line and add them to the response:
                 String line = in.readLine();
                 while (line != null) {
-                    response += line + "\n";
+                    response.append(line).append("\n");
                     line = in.readLine();
                 }
 
                 // Parse the JSON string and return an array of 6 Gardens
-                Garden[] gardens = parseJsonString(response);
+                Garden[] gardens = parseJsonString(response.toString());
 
                 // Send the array of Gardens to the UI thread using the handler
                 msg_data.putSerializable("gardens", gardens);
                 
             } else { // content type not supported
-                response = "Actual content type different from expected ("+
-                        actualContentType + " vs " + expectedContent_type + ")";
+                response = new StringBuilder("Actual content type different from expected (" +
+                        actualContentType + " vs " + expectedContent_type + ")");
             }
             urlConnection.disconnect();
         } catch (Exception e) {
-            response = e.toString();
+            response = new StringBuilder(e.toString());
         }
 
         Log.d(ParticipantsActivity.LOADWEBTAG, threadAndClass + ": load complete, sending message to UI thread");
-        if (!"".equals(response)) {
-            msg_data.putString("text", response);
+        if (!"".equals(response.toString())) {
+            msg_data.putString("text", response.toString());
         }
         msg.sendToTarget();
     }
@@ -111,8 +111,7 @@ public class LoadURLContents implements Runnable {
         JSONArray graph = jsonObject.getJSONArray("@graph");
 
         String[][] gardenInfoArray = extractGardensFromJson(graph);
-        Garden[] randomGardensArray = getRandomGardens(gardenInfoArray);
-        return randomGardensArray;
+        return getRandomGardens(gardenInfoArray);
     }
 
     /**

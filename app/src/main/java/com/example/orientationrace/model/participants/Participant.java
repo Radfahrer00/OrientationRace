@@ -3,7 +3,7 @@ package com.example.orientationrace.model.participants;
 public class Participant {
     // This class contains the actual data of each Participant of the dataset
 
-    private String username; ; // Username of the participant
+    private String username; // Username of the participant
     private Long key; // In this app we use keys of type Long
 
     public Participant(String username, Long key) {

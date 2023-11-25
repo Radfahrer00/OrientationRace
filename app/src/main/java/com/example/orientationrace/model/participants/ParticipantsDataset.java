@@ -6,8 +6,6 @@ import java.util.List;
 public class ParticipantsDataset {
 
     // This dataset is a list of Participants
-
-    private static final String TAG = "TAGlistOfParticipants, ParticipantsDataset";
     private List<Participant> listOfParticipants;
 
     public ParticipantsDataset() {

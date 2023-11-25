@@ -106,12 +106,9 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         subscribeToTopic();
 
         // Applying OnLongClickListener to our Adapter
-        gardensAdapter.setOnLongClickListener((position, garden) -> showPopup(position));
+        gardensAdapter.setOnLongClickListener();
 
-        gardensAdapter.setOnItemClickListener((position, garden) -> {
-            Intent intentLocation = new Intent(RaceActivity.this, GardenLocationActivity.class);
-            startActivity(intentLocation);
-        });
+        gardensAdapter.setOnItemClickListener();
 
 
         isButtonAvailable = true;
@@ -192,11 +189,6 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
     }
 
-    // Method to show a Popup window requesting the user to confirm the checkpoint
-    public void showPopup(int position) {
-        gardensAdapter.showPopup(position);
-    }
-
     private void startCurrentLocationActivity() {
         Intent intentLocation = new Intent(RaceActivity.this, CurrentLocationActivity.class);
         startActivity(intentLocation);
@@ -273,7 +265,7 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     }
 
     @Override
-    public void messageArrived(String topic, MqttMessage message) throws Exception {
+    public void messageArrived(String topic, MqttMessage message) {
         try {
             String incomingMessage = new String(message.getPayload());
             Log.d(MQTTCONNECTION, "Message arrived: " + incomingMessage);

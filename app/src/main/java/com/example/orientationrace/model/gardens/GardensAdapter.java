@@ -50,7 +50,7 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
     private static final String TOPIC_CHECKPOINTS = "madridOrientationRace/checkpoints";
 
     // Manager for handling MQTT communication.
-    private MqttManager mqttManager;
+    private final MqttManager mqttManager;
 
     /**
      * Constructs a GardensAdapter with the specified dataset and context.
@@ -112,28 +112,22 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
         } else {
             // Item is not clicked, set the default state
             holder.itemView.setClickable(true);  // Enable click events
-            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (!itemClickedState[itemPosition]) {
-                        showPopup(itemPosition);
-                    }
-                    return true;
+            holder.itemView.setOnLongClickListener(v -> {
+                if (!itemClickedState[itemPosition]) {
+                    showPopup(itemPosition);
                 }
+                return true;
             });
 
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (!itemClickedState[itemPosition]) {
-                        Intent intent = new Intent(context, GardenLocationActivity.class);
+            holder.itemView.setOnClickListener(view -> {
+                if (!itemClickedState[itemPosition]) {
+                    Intent intent = new Intent(context, GardenLocationActivity.class);
 
-                        intent.putExtra("gardenLat", garden.getLatitude());
-                        intent.putExtra("gardenLong", garden.getLongitude());
+                    intent.putExtra("gardenLat", garden.getLatitude());
+                    intent.putExtra("gardenLong", garden.getLongitude());
 
-                        // Start the new activity
-                        context.startActivity(intent);
-                    }
+                    // Start the new activity
+                    context.startActivity(intent);
                 }
             });
         }
@@ -149,11 +143,11 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
         return dataset.getSize();
     }
 
-    public void setOnLongClickListener(OnLongClickListener onLongClickListener) {
+    public void setOnLongClickListener() {
 
     }
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+    public void setOnItemClickListener() {
 
     }
 
@@ -192,19 +186,6 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
 
     }
 
-    /**
-     * Interface definition for a callback to be invoked when a garden item is long-clicked.
-     */
-    public interface OnLongClickListener {
-        void onLongClick(int position, Garden garden);
-    }
-
-    /**
-     * Interface definition for a callback to be invoked when a garden item is clicked.
-     */
-    public interface OnItemClickListener {
-        void onItemClick(int position, Garden garden);
-    }
 
     // ------ Other methods useful for the app ------ //
 

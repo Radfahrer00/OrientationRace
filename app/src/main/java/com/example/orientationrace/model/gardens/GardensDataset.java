@@ -9,7 +9,7 @@ public class GardensDataset {
     // This dataset is a list of Gardens
 
     private static final String TAG = "TAGlistOfGardens, GardensDataset";
-    private List<Garden> listOfGardens;
+    private final List<Garden> listOfGardens;
 
     public GardensDataset() {
         Log.d(TAG, "GardensDataset() called");
