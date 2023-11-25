@@ -68,7 +68,7 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
             // Finish the current activity after 30 seconds
             finish();
             Toast.makeText(CurrentLocationActivity.this, "30 seconds are up!", Toast.LENGTH_SHORT).show();
-        }, 8 * 1000); // 30 seconds in milliseconds
+        }, 15 * 1000); // 30 seconds in milliseconds
     }
 
     /**
@@ -87,69 +87,6 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
         mMap = googleMap;
 
         //checkAndRequestLocationPermission();
-        currentLocationViewModel.checkAndRequestLocationPermission();
-    }
-
-
-    /**
-     * Checks if the ACCESS_FINE_LOCATION permission is already granted.
-     * If granted, proceeds to get the current location. Otherwise, requests the permission.
-     */
-    private void checkAndRequestLocationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED) {
-            // Permission is already granted, proceed to get the current location.
-            getCurrentLocation();
-        } else {
-            // Permission is not granted, request the permission.
-            requestLocationPermission();
-        }
-    }
-
-    /**
-     * Requests the ACCESS_FINE_LOCATION permission from the user.
-     */
-    private void requestLocationPermission() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_FINE_LOCATION_PERMISSION);
-    }
-
-    /**
-     * Retrieves the current location using the FusedLocationProviderClient and places a marker on the map.
-     */
-    @SuppressLint("MissingPermission")
-    private void getCurrentLocation() {
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        CurrentLocationRequest.Builder requestBuilder = new CurrentLocationRequest.Builder();
-        requestBuilder
-                .setDurationMillis(10000) // Request location updates for 10 seconds
-                .setPriority(Priority.PRIORITY_HIGH_ACCURACY); // Request high accuracy location
-
-        CurrentLocationRequest locationRequest = requestBuilder.build();
-
-        // Request the current location
-        @SuppressLint("MissingPermission") Task<Location> locationTask = fusedLocationProviderClient.getCurrentLocation(locationRequest, null);
-
-        fusedLocationProviderClient.getLastLocation()
-                .addOnSuccessListener(this, location -> {
-                    if (location != null) {
-                        double latitude = location.getLatitude();
-                        double longitude = location.getLongitude();
-
-                        LatLng latLng = new LatLng(latitude, longitude);
-                        placeMarker(latLng);
-                    }
-                });
-    }
-
-    /**
-     * Places a marker on the map at the specified location and moves the camera to that location.
-     *
-     * @param location The LatLng object representing the location to place the marker.
-     */
-    private void placeMarker(LatLng location) {
-        if (mMap != null) {
-            mMap.addMarker(new MarkerOptions().position(location).title("Current Location"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15));
-        }
+        currentLocationViewModel.checkAndRequestLocationPermission(mMap);
     }
 }

@@ -24,8 +24,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
 
-import java.util.concurrent.Executor;
-
 public class CurrentLocationViewModel extends AndroidViewModel {
 
     private GoogleMap mMap;
@@ -35,6 +33,23 @@ public class CurrentLocationViewModel extends AndroidViewModel {
 
     public CurrentLocationViewModel(@NonNull Application application) {
         super(application);
+    }
+
+    /**
+     * Checks if the ACCESS_FINE_LOCATION permission is already granted.
+     * If granted, proceeds to get the current location. Otherwise, requests the permission.
+     */
+    public void checkAndRequestLocationPermission(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        if (ContextCompat.checkSelfPermission(getApplication(), Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED) {
+            // Permission is already granted, proceed to get the current location.
+            getCurrentLocation();
+        } else {
+            // Permission is not granted, request the permission.
+            requestLocationPermission();
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -63,21 +78,6 @@ public class CurrentLocationViewModel extends AndroidViewModel {
     }
 
     /**
-     * Checks if the ACCESS_FINE_LOCATION permission is already granted.
-     * If granted, proceeds to get the current location. Otherwise, requests the permission.
-     */
-    public void checkAndRequestLocationPermission() {
-        if (ContextCompat.checkSelfPermission(getApplication(), Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED) {
-            // Permission is already granted, proceed to get the current location.
-            getCurrentLocation();
-        } else {
-            // Permission is not granted, request the permission.
-            requestLocationPermission();
-        }
-    }
-
-    /**
      * Requests the ACCESS_FINE_LOCATION permission from the user.
      */
     private void requestLocationPermission() {
@@ -86,7 +86,7 @@ public class CurrentLocationViewModel extends AndroidViewModel {
 
     public void placeMarker(LatLng location) {
         if (mMap != null) {
-            mMap.addMarker(new MarkerOptions().position(location).title("Current Location"));
+            mMap.addMarker(new MarkerOptions().position(location).title("Current Location").snippet("You are here"));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15));
         }
     }
