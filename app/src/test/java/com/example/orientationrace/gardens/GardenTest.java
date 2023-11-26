@@ -1,5 +1,7 @@
 package com.example.orientationrace.gardens;
 
+import com.example.orientationrace.model.gardens.Garden;
+
 import junit.framework.TestCase;
 
 public class GardenTest extends TestCase {

@@ -1,22 +1,23 @@
-package com.example.orientationrace.gardens;
+package com.example.orientationrace.model.gardens;
 
-import static com.example.orientationrace.activities.RaceActivity.MQTTCONNECTION;
+import static com.example.orientationrace.views.activities.RaceActivity.MQTTCONNECTION;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.orientationrace.MqttManager;
+import com.example.orientationrace.model.MqttManager;
 import com.example.orientationrace.R;
+import com.example.orientationrace.views.activities.GardenLocationActivity;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -49,7 +50,7 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
     private static final String TOPIC_CHECKPOINTS = "madridOrientationRace/checkpoints";
 
     // Manager for handling MQTT communication.
-    private MqttManager mqttManager;
+    private final MqttManager mqttManager;
 
     /**
      * Constructs a GardensAdapter with the specified dataset and context.
@@ -111,13 +112,24 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
         } else {
             // Item is not clicked, set the default state
             holder.itemView.setClickable(true);  // Enable click events
-            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (!itemClickedState[itemPosition]) {
-                        showPopup(v, itemPosition);
-                    }
-                    return true;
+            // LongClickListener for showing a popup window to confirm that the checkpoint was reached
+            holder.itemView.setOnLongClickListener(v -> {
+                if (!itemClickedState[itemPosition]) {
+                    showPopup(itemPosition);
+                }
+                return true;
+            });
+
+            // OnClickListener to see the location of the garden on the map
+            holder.itemView.setOnClickListener(view -> {
+                if (!itemClickedState[itemPosition]) {
+                    Intent intent = new Intent(context, GardenLocationActivity.class);
+
+                    intent.putExtra("gardenLat", garden.getLatitude());
+                    intent.putExtra("gardenLong", garden.getLongitude());
+
+                    // Start the new activity
+                    context.startActivity(intent);
                 }
             });
         }
@@ -133,9 +145,10 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
         return dataset.getSize();
     }
 
-    public void setOnLongClickListener(OnLongClickListener onLongClickListener) {
+    public void setOnLongClickListener() {}
 
-    }
+    public void setOnItemClickListener() {}
+
 
     // ------ Implementation of methods of MqttCallback ------ //
 
@@ -171,12 +184,6 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
 
     }
 
-    /**
-     * Interface definition for a callback to be invoked when a garden item is long-clicked.
-     */
-    public interface OnLongClickListener {
-        void onLongClick(int position, Garden garden);
-    }
 
     // ------ Other methods useful for the app ------ //
 
@@ -204,10 +211,9 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
     /**
      * Method to show a Popup window requesting confirmation that the user reached the checkpoint.
      *
-     * @param view           The view from which the popup is initiated.
      * @param gardenPosition The position of the garden item in the adapter.
      */
-    public void showPopup(View view, int gardenPosition) {
+    public void showPopup(int gardenPosition) {
         // Create a Dialog object
         Dialog popupDialog = new Dialog(context);
 
@@ -256,6 +262,13 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
         } catch (MqttException e) {
             Log.d(MQTTCONNECTION, "No Publishing");
         }
+
+        // Create a Dialog object
+        Dialog popupDialog = new Dialog(context);
+        // Set the content view to the layout created for the popup
+        popupDialog.setContentView(R.layout.race_won_popup);
+        // Show the popup
+        popupDialog.show();
     }
 
     /**
@@ -267,7 +280,6 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
         String message = mqttManager.getClientId() + " reached Checkpoint Number: " + checkpointNumber;
         try {
             mqttManager.publishMessage(TOPIC_CHECKPOINTS, message);
-            Toast.makeText(context.getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         } catch (MqttException e) {
             Log.d(MQTTCONNECTION, "No Publishing");
         }

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#A0000000">
+
+    <ImageView
+        android:id="@+id/arrow_top"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/arrow"
+        android:rotation="180"
+        android:layout_marginTop="140dp"
+        android:layout_marginLeft="120dp"
+        />
+
+    <TextView
+        android:id="@+id/tutorialText"
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
+        android:text="Click on one of the gardens to see their location,\nLong click on the garden when you reached it."
+        android:textSize="16sp"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:layout_centerHorizontal="true"
+        android:textStyle="bold"
+        android:layout_marginTop="230dp"
+        />
+
+    <TextView
+        android:id="@+id/tutorialTextZwo"
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
+        android:text="Use the See Current Location button to see your location.\nYou can only see your location for 30 seconds every 5 minutes!"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="400dp"
+        />
+
+    <ImageView
+        android:id="@+id/myImageView"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/arrow"
+        android:layout_marginTop="510dp"
+        android:layout_marginLeft="220dp"
+        />
+
+    <Button
+        android:id="@+id/closeButton"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:text="Got it!"
+        android:layout_marginTop="600dp"
+        android:layout_centerHorizontal="true"
+        android:textSize="20dp"
+        android:backgroundTint="#A52A2A"/>
+
+</RelativeLayout>
