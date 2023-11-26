@@ -98,8 +98,7 @@ public class ParticipantsAdapter extends RecyclerView.Adapter<ParticipantsViewHo
      */
     public int getPositionOfKey(Long searchedKey) {
         //Log.d(TAG, "getPositionOfKey() called for key " + searchedKey + ", returns " + position);
-        int position = dataset.getPositionOfKey(searchedKey);
-        return position;
+        return dataset.getPositionOfKey(searchedKey);
     }
 
 }

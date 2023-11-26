@@ -16,7 +16,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
  */
 public class MqttManager {
     private static MqttManager instance;
-    private MqttClient mqttClient;
+    public MqttClient mqttClient;
     private static final String BROKER_URI = "tcp://91.121.93.94:1883";
     public static final String MQTTCONNECTION = "MQTT_connection";
     String clientId;

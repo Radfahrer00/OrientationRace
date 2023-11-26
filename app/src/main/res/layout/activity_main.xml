@@ -42,7 +42,7 @@
         android:id="@+id/usernameLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="94dp"
+        android:layout_marginStart="80dp"
         android:layout_marginTop="442dp"
         android:text="Username:"
         android:textSize="12sp"

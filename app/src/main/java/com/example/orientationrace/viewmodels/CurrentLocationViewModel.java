@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.location.CurrentLocationRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -31,7 +30,6 @@ import com.google.android.gms.tasks.Task;
 public class CurrentLocationViewModel extends AndroidViewModel {
 
     private GoogleMap mMap;
-    private FusedLocationProviderClient fusedLocationProviderClient;
     private static final int REQUEST_FINE_LOCATION_PERMISSION = 1;
 
     /**
@@ -67,7 +65,7 @@ public class CurrentLocationViewModel extends AndroidViewModel {
      */
     @SuppressLint("MissingPermission")
     private void getCurrentLocation() {
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getApplication().getApplicationContext());
+        FusedLocationProviderClient fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getApplication().getApplicationContext());
         CurrentLocationRequest.Builder requestBuilder = new CurrentLocationRequest.Builder();
         requestBuilder
                 .setDurationMillis(10000) // Request location updates for 10 seconds

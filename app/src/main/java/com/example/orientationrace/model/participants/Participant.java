@@ -5,8 +5,8 @@ package com.example.orientationrace.model.participants;
  * This class contains the actual data of each participant in the dataset.
  */
 public class Participant {
-    private String username; // Username of the participant
-    private Long key; // In this app we use keys of type Long
+    private final String username; // Username of the participant
+    private final Long key; // In this app we use keys of type Long
 
     /**
      * Constructor for creating a new Participant object with the specified username and key.

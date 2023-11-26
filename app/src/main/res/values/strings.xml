@@ -9,4 +9,6 @@
     <string name="current_location_button">See current location</string>
     <string name="username_label_text">Username:</string>
     <string name="title_activity_garden_location">GardenLocationActivity</string>
+    <string name="not_available">Not available</string>
+    <string name="see_current_location">See current location</string>
 </resources>

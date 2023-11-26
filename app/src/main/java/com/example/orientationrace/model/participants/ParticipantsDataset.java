@@ -67,9 +67,8 @@ public class ParticipantsDataset {
     public int getPositionOfKey(Long searchedKey) {
         // Look for the position of the Participant with key = searchedkey.
         // The following works because in Participant, the method "equals" is overriden to compare only keys:
-        int position = listOfParticipants.indexOf(new Participant("placeholder", searchedKey));
         //Log.d(TAG, "getPositionOfKey() called for key " + searchedkey + ", returns " + position);
-        return position;
+        return listOfParticipants.indexOf(new Participant("placeholder", searchedKey));
     }
 
     /**

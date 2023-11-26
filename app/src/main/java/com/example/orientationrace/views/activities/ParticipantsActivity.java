@@ -63,10 +63,10 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
 
     // Condition Handler for Activity change
     private final Handler checkConditionsHandler = new Handler();
-    private static final int CHECK_CONDITIONS_INTERVAL = 8000; // 8 seconds
+    private static final int CHECK_CONDITIONS_INTERVAL = 15000; // 15 seconds
 
     // Variable for the number of participants required to start the race
-    private static final int PARTICIPANTS_REQUIRED = 1;
+    private static final int PARTICIPANTS_REQUIRED = 2;
 
     /**
      * Initializes the activity, sets up the UI, and connects to the MQTT broker.
@@ -190,10 +190,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
                 // Check if the message contains the "gardens" key
                 if (msg.getData().containsKey("gardens")) {
                     // Retrieve the array of Garden objects from the message
-                    Garden[] gardens = (Garden[]) msg.getData().getSerializable("gardens");
-
-                    // Now you can use the 'gardens' array in your activity
-                    randomGardensArray = gardens;
+                    randomGardensArray = (Garden[]) msg.getData().getSerializable("gardens");
                 }
             }
             text.setText("Gardens loaded");
@@ -251,7 +248,7 @@ public class ParticipantsActivity extends AppCompatActivity implements MqttCallb
                 Participant newParticipant = new Participant(incomingMessage, userCount);
                 participantsDataset.addParticipant(newParticipant);
                 runOnUiThread(() -> recyclerView.getAdapter().notifyDataSetChanged());
-                userCount = Long.sum(userCount, (long) 1);
+                userCount = Long.sum(userCount, 1);
             }
         } catch (Exception e) {
             e.printStackTrace();

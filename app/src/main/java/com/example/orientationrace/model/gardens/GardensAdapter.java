@@ -167,10 +167,9 @@ public class GardensAdapter extends RecyclerView.Adapter<GardensViewHolder> impl
      *
      * @param topic   The topic on which the message was received.
      * @param message The received message.
-     * @throws Exception Any exception that occurs while processing the message.
      */
     @Override
-    public void messageArrived(String topic, MqttMessage message) throws Exception {
+    public void messageArrived(String topic, MqttMessage message) {
 
     }
 

@@ -121,7 +121,7 @@ public class LoadURLContents implements Runnable {
      * @return An array of Garden objects parsed from the JSON string.
      * @throws JSONException If there is an error in JSON parsing.
      */
-    private Garden[] parseJsonString(String jsonString) throws JSONException {
+    public Garden[] parseJsonString(String jsonString) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonString);
         JSONArray graph = jsonObject.getJSONArray("@graph");
 

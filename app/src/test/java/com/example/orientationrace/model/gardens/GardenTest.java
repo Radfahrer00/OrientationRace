@@ -1,4 +1,4 @@
-package com.example.orientationrace.gardens;
+package com.example.orientationrace.model.gardens;
 
 import com.example.orientationrace.model.gardens.Garden;
 

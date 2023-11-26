@@ -19,8 +19,6 @@ import com.example.orientationrace.databinding.ActivityGardenLocationBinding;
  */
 public class GardenLocationActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
-    private ActivityGardenLocationBinding binding;
     private double latitude;
     private double longitude;
 
@@ -38,7 +36,7 @@ public class GardenLocationActivity extends FragmentActivity implements OnMapRea
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityGardenLocationBinding.inflate(getLayoutInflater());
+        com.example.orientationrace.databinding.ActivityGardenLocationBinding binding = ActivityGardenLocationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         gardenLocationViewModel = new ViewModelProvider(this).get(GardenLocationViewModel.class);
@@ -66,8 +64,7 @@ public class GardenLocationActivity extends FragmentActivity implements OnMapRea
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
 
-        gardenLocationViewModel.placeMarker(mMap, latitude, longitude);
+        gardenLocationViewModel.placeMarker(googleMap, latitude, longitude);
     }
 }

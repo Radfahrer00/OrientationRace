@@ -20,8 +20,6 @@ import com.example.orientationrace.databinding.ActivityCurrentLocationBinding;
  */
 public class CurrentLocationActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
-    private ActivityCurrentLocationBinding binding;
     private CurrentLocationViewModel currentLocationViewModel;
 
     /**
@@ -36,7 +34,7 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityCurrentLocationBinding.inflate(getLayoutInflater());
+        com.example.orientationrace.databinding.ActivityCurrentLocationBinding binding = ActivityCurrentLocationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         currentLocationViewModel = new ViewModelProvider(this).get(CurrentLocationViewModel.class);
@@ -51,7 +49,7 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
             // Finish the current activity after 30 seconds
             finish();
             Toast.makeText(CurrentLocationActivity.this, "30 seconds are up!", Toast.LENGTH_SHORT).show();
-        }, 10 * 1000); // 30 seconds in milliseconds
+        }, 30 * 1000); // 30 seconds in milliseconds
     }
 
     /**
@@ -67,8 +65,6 @@ public class CurrentLocationActivity extends FragmentActivity implements OnMapRe
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-
-        currentLocationViewModel.checkAndRequestLocationPermission(mMap);
+        currentLocationViewModel.checkAndRequestLocationPermission(googleMap);
     }
 }

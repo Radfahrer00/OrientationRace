@@ -45,12 +45,9 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
  * The `RaceActivity` class represents the main activity of the Madrid Orientation Race application.
  * It handles the race functionality, including compass orientation, displaying gardens, and interacting
  * with MQTT messages for checkpoints.
- *
  * The activity integrates sensors for compass functionality, TextToSpeech for providing spoken
  * orientation information, and MQTT for communication with the server regarding checkpoints.
- *
  * This class also includes functionality for displaying a tutorial overlay for first-time users.
- *
  */
 public class RaceActivity extends AppCompatActivity implements SensorEventListener, OnInitListener, MqttCallback {
 
@@ -65,8 +62,8 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     private Sensor magnetometer;
     private float[] floatGravity = new float[3];
     private float[] floatGeoMagnetic = new float[3];
-    private float[] floatOrientation = new float[3];
-    private float[] floatRotationMatrix = new float[9];
+    private final float[] floatOrientation = new float[3];
+    private final float[] floatRotationMatrix = new float[9];
 
     // Gardens dataset:
     public GardensDataset gardensDataset = new GardensDataset();
@@ -150,6 +147,10 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         });
     }
 
+
+    /**
+     * Called when the activity is resumed. Registers sensor listeners.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -157,12 +158,20 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         sensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
+    /**
+     * Called when the activity is paused. Unregisters sensor listeners.
+     */
     @Override
     protected void onPause() {
         super.onPause();
         sensorManager.unregisterListener(this);
     }
 
+    /**
+     * Called when sensor values change. Updates compass orientation.
+     *
+     * @param event The sensor event containing new sensor values.
+     */
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor == accelerometer) {
@@ -186,30 +195,31 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
 
         // Set the compass image rotation
         compassImage.setRotation(correctedDegree);
-
-        //getOrientationLabel(correctedDegree);
-
     }
 
+    /**
+     * Returns the name of the current orientation.
+     *
+     * @param correctedDegree the degrees the pointer is currently pointing to.
+     */
     private String getOrientationLabel(float correctedDegree) {
         // Check orientation and speak
         if (isOrientationInRange(correctedDegree, 0.0f, 20.0f)) {
-            //speakOrientation("North");
             return "North";
         } else if (isOrientationInRange(correctedDegree, 70.0f, 110.0f)) {
-            //speakOrientation("West");
             return "West";
         } else if (isOrientationInRange(correctedDegree, 170.0f, 190.0f)) {
-            //speakOrientation("South");
             return "South";
         } else if (isOrientationInRange(correctedDegree, 250.0f, 290.0f)) {
-            //speakOrientation("East");
             return "East";
         } else {
             return "";
         }
     }
 
+    /**
+     * Initializes the Text to Speech handler.
+     */
     @Override
     public void onInit(int status) {
         if (status == TextToSpeech.SUCCESS) {
@@ -225,11 +235,19 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    /**
+     * Speaks the given orientation using TextToSpeech and logs the action.
+     *
+     * @param orientation The orientation to be spoken.
+     */
     private void speakOrientation(String orientation) {
         Log.i("TextToSpeech", "Speaking: " + orientation);
         textToSpeech.speak("" + orientation, TextToSpeech.QUEUE_FLUSH, null, null);
     }
 
+    /**
+     * Call the speakOrientation method every 2 seconds.
+     */
     private void startSpeechTimer() {
         speechHandler.postDelayed(new Runnable() {
             @Override
@@ -240,11 +258,20 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         }, SPEECH_DELAY_MILLIS);
     }
 
+    /**
+     * Called when the accuracy of a sensor has changed.
+     *
+     * @param sensor The sensor whose accuracy has changed.
+     * @param i The new accuracy of the sensor.
+     */
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
 
+    /**
+     * Initializes the RecyclerView for displaying gardens.
+     */
     private void initRecyclerView() {
         // Prepare the RecyclerView:
         RecyclerView recyclerView = findViewById(R.id.gardensRecyclerView);
@@ -256,6 +283,9 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
     }
 
+    /**
+     * Starts the `CurrentLocationActivity` when the current location button is clicked.
+     */
     private void startCurrentLocationActivity() {
         Intent intentLocation = new Intent(RaceActivity.this, CurrentLocationActivity.class);
         startActivity(intentLocation);
@@ -265,20 +295,26 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         Toast.makeText(RaceActivity.this, "Button disabled for 5 minutes!", Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Disables the current location button for five minutes.
+     */
     private void disableButtonForFiveMinutes() {
         isButtonAvailable = false;
         bCurrentLocation.setEnabled(false);
-        bCurrentLocation.setText("Not available");
+        bCurrentLocation.setText(R.string.not_available);
         bCurrentLocation.setTextColor(Color.WHITE);
 
         // After 5 minutes, enable the button again
         new Handler().postDelayed(() -> {
             isButtonAvailable = true;
             bCurrentLocation.setEnabled(true);
-            bCurrentLocation.setText("See current location");
-        }, 2 * 10 * 1000); // 5 minutes in milliseconds
+            bCurrentLocation.setText(R.string.see_current_location);
+        }, 5 * 60 * 1000); // 5 minutes in milliseconds
     }
 
+    /**
+     * Subscribes to the MQTT checkpoint topic.
+     */
     private void subscribeToTopic() {
         try {
             mqttManager.subscribeToTopic(TOPIC_CHECKPOINTS, RaceActivity.this);
@@ -288,6 +324,11 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    /**
+     * Handles the case when the connection to the MQTT broker is lost.
+     *
+     * @param cause The cause of the connection loss.
+     */
     @Override
     public void connectionLost(Throwable cause) {
         // Handle the case when the connection to the broker is lost
@@ -298,6 +339,12 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    /**
+     * Handles incoming MQTT messages.
+     *
+     * @param topic   The topic to which the message was sent.
+     * @param message The MQTT message.
+     */
     @Override
     public void messageArrived(String topic, MqttMessage message) {
         try {
@@ -314,17 +361,25 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    /**
+     * Called when message delivery is complete.
+     *
+     * @param token The delivery token associated with the message.
+     */
     @Override
     public void deliveryComplete(IMqttDeliveryToken token) {
 
     }
 
+    /**
+     * Displays the tutorial overlay for first-time users.
+     */
     private void showTutorial() {
         // Check if it's the first time
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         boolean firstTime = settings.getBoolean(PREF_FIRST_TIME, true);
 
-        //if (firstTime) {
+        if (firstTime) {
             // Show the overlay layout
             showOverlay();
 
@@ -332,9 +387,12 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
             SharedPreferences.Editor editor = settings.edit();
             editor.putBoolean(PREF_FIRST_TIME, false);
             editor.apply();
-        //}
+        }
     }
 
+    /**
+     * Shows the tutorial overlay.
+     */
     private void showOverlay() {
         View overlayView = LayoutInflater.from(this).inflate(R.layout.tutorial_overlay, null);
         ViewGroup rootView = findViewById(android.R.id.content);
