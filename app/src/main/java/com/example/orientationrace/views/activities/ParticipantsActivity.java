@@ -34,6 +34,7 @@ import java.util.concurrent.Executors;
 
 /**
  * Activity responsible for showing participants and initiating the race when conditions are met.
+ * Extends AppCompatActivity and implements MqttCallback for handling MQTT functionality.
  */
 public class ParticipantsActivity extends AppCompatActivity implements MqttCallback {
 

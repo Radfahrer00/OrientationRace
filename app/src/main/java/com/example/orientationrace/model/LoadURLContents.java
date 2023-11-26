@@ -22,25 +22,33 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+/**
+ * A Runnable class for downloading text-based content from a URL and communicating with the UI thread.
+ * This class is designed to run in a separate thread.
+ */
 public class LoadURLContents implements Runnable {
-    // Class to download a text-based content (e.g. HTML, XML, JSON, ...) from a URL
-    // and populate a String with it that will be sent in a Message
-
     Handler creator; // handler to the main activity, who creates this task
     private final String expectedContent_type;
     private final String string_URL;
 
 
+    /**
+     * Constructs a LoadURLContents object with the specified parameters.
+     *
+     * @param handler              The handler to the creator of this object.
+     * @param cnt_type             The content type expected (e.g., "application/vnd.google-earth.kml+xml").
+     * @param strURL               The URL to load.
+     */
     public LoadURLContents(Handler handler, String cnt_type, String strURL) {
-        // The constructor accepts 3 arguments:
-        // The handler to the creator of this object
-        // The content type expected (e.g. "application/vnd.google-earth.kml+xml").
-        // The URL to load.
         creator = handler;
         expectedContent_type = cnt_type;
         string_URL = strURL;
     }
 
+    /**
+     * The method executed when the thread is started. Downloads content from the specified URL,
+     * validates the content type, and sends a message to the UI thread.
+     */
     @SuppressLint("LongLogTag")
     @Override
     public void run() {
@@ -106,6 +114,13 @@ public class LoadURLContents implements Runnable {
         msg.sendToTarget();
     }
 
+    /**
+     * Parses a JSON string to extract information about gardens.
+     *
+     * @param jsonString The JSON string to parse.
+     * @return An array of Garden objects parsed from the JSON string.
+     * @throws JSONException If there is an error in JSON parsing.
+     */
     private Garden[] parseJsonString(String jsonString) throws JSONException {
         JSONObject jsonObject = new JSONObject(jsonString);
         JSONArray graph = jsonObject.getJSONArray("@graph");
@@ -115,9 +130,10 @@ public class LoadURLContents implements Runnable {
     }
 
     /**
-     * Extracts titles from a JSON array and stores them in a string array.
-     * @param jsonArray A JSON array containing objects to extract titles from.
-     * @return An array of titles extracted from the JSON array.
+     * Extracts information about gardens from a JSON array.
+     *
+     * @param jsonArray A JSON array containing objects representing gardens.
+     * @return A 2D array containing information about gardens (title, latitude, longitude).
      * @throws JSONException If there is an error in JSON parsing.
      */
     private String[][] extractGardensFromJson(JSONArray jsonArray) throws JSONException {
@@ -146,11 +162,11 @@ public class LoadURLContents implements Runnable {
     }
 
     /**
-     * Generates an array of random gardens by selecting unique elements from the original garden array.
-     * @param gardenDetailsArray An array containing the source garden elements.
-     * @return An array of 6 unique random garden names.
+     * Generates an array of random gardens based on the provided garden details array.
+     *
+     * @param gardenDetailsArray An array containing information about gardens.
+     * @return An array of Garden objects representing randomly selected gardens.
      */
-
     private Garden[] getRandomGardens(String[][] gardenDetailsArray) {
         Garden[] randomGardensArray = new Garden[6];
         Random random = new Random();

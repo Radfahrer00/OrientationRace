@@ -15,9 +15,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.example.orientationrace.databinding.ActivityCurrentLocationBinding;
 
 /**
- * Activity to display the current location on a Google Map and automatically finish after 30 seconds.
- * Uses the FusedLocationProviderClient to retrieve the current location.
- * Requires the ACCESS_FINE_LOCATION permission to be granted for location services.
+ * Activity class for displaying the current location on a map. Extends FragmentActivity and
+ * implements the OnMapReadyCallback to handle map-related functionality.
  */
 public class CurrentLocationActivity extends FragmentActivity implements OnMapReadyCallback {
 

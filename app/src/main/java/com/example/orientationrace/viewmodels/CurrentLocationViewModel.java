@@ -24,12 +24,21 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Task;
 
+/**
+ * ViewModel class for managing the current location in a Google Map.
+ * This class handles location permissions, requests the current location, and places a marker on the map.
+ */
 public class CurrentLocationViewModel extends AndroidViewModel {
 
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private static final int REQUEST_FINE_LOCATION_PERMISSION = 1;
 
+    /**
+     * Constructor for the ViewModel.
+     *
+     * @param application The application instance.
+     */
     public CurrentLocationViewModel(@NonNull Application application) {
         super(application);
     }
@@ -37,6 +46,8 @@ public class CurrentLocationViewModel extends AndroidViewModel {
     /**
      * Checks if the ACCESS_FINE_LOCATION permission is already granted.
      * If granted, proceeds to get the current location. Otherwise, requests the permission.
+     *
+     * @param googleMap The GoogleMap instance to interact with.
      */
     public void checkAndRequestLocationPermission(GoogleMap googleMap) {
         mMap = googleMap;
@@ -51,6 +62,9 @@ public class CurrentLocationViewModel extends AndroidViewModel {
         }
     }
 
+    /**
+     * Gets the current location using the FusedLocationProviderClient.
+     */
     @SuppressLint("MissingPermission")
     private void getCurrentLocation() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getApplication().getApplicationContext());
@@ -83,6 +97,11 @@ public class CurrentLocationViewModel extends AndroidViewModel {
         ActivityCompat.requestPermissions((Activity) getApplication().getApplicationContext(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_FINE_LOCATION_PERMISSION);
     }
 
+    /**
+     * Places a marker on the Google Map at the specified location.
+     *
+     * @param location The LatLng object representing the location.
+     */
     public void placeMarker(LatLng location) {
         if (mMap != null) {
             mMap.addMarker(new MarkerOptions().position(location).title("Current Location").snippet("You are here"));

@@ -46,8 +46,7 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     private static final String PREFS_NAME = "MyPrefsFile";
     private static final String PREF_FIRST_TIME = "first_time";
 
-
-
+    // Configurations for the compass
     private ImageView compassImage;
     private SensorManager sensorManager;
     private Sensor accelerometer;
@@ -61,6 +60,7 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     public GardensDataset gardensDataset = new GardensDataset();
     final GardensAdapter gardensAdapter = new GardensAdapter(gardensDataset, this);
 
+    // Text to Speech Accessibility
     private TextToSpeech textToSpeech;
 
     private static final long SPEECH_DELAY_MILLIS = 2000; // Delay 2 seconds
@@ -84,6 +84,8 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_race);
         textToSpeech = new TextToSpeech(this, this);
+        speechHandler = new Handler();
+        startSpeechTimer();
 
         // Get references to UI elements
         compassImage = findViewById(R.id.compassImageView);
@@ -119,9 +121,6 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
-        speechHandler = new Handler();
-        startSpeechTimer();
-
         bCurrentLocation.setOnClickListener(v -> {
             if (isButtonAvailable) {
                 startCurrentLocationActivity();
@@ -146,18 +145,37 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor == accelerometer) {
             floatGravity = event.values;
-            SensorManager.getRotationMatrix(floatRotationMatrix, null, floatGravity, floatGeoMagnetic);
-            SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
-
-            compassImage.setRotation((float) (-floatOrientation[0] * 180 / 3.14159));
-
         } else if (event.sensor == magnetometer) {
             floatGeoMagnetic = event.values;
-            SensorManager.getRotationMatrix(floatRotationMatrix, null, floatGravity, floatGeoMagnetic);
-            SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
-
-            compassImage.setRotation((float) (-floatOrientation[0] * 180 / 3.14159));
         }
+
+        SensorManager.getRotationMatrix(floatRotationMatrix, null, floatGravity, floatGeoMagnetic);
+        SensorManager.getOrientation(floatRotationMatrix, floatOrientation);
+
+        float degree = (float) (-floatOrientation[0] * 180 / 3.14159);
+
+        // Ensure the degree is positive
+        if (degree < 0) {
+            degree += 360;
+        }
+
+        // Corrected degree for your specific case
+        correctedDegree = degree;
+
+        // Set the compass image rotation
+        compassImage.setRotation(correctedDegree);
+
+        // Check orientation and speak
+        if (isOrientationInRange(correctedDegree, 0.0f, 20.0f)) {
+            speakOrientation("Facing North");
+        } else if (isOrientationInRange(correctedDegree, 70.0f, 110.0f)) {
+            speakOrientation("Facing East");
+        } else if (isOrientationInRange(correctedDegree, 170.0f, 190.0f)) {
+            speakOrientation("Facing South");
+        } else if (isOrientationInRange(correctedDegree, 250.0f, 290.0f)) {
+            speakOrientation("Facing West");
+        }
+
     }
 
     @Override
@@ -213,34 +231,34 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         }, 2 * 10 * 1000); // 5 minutes in milliseconds
     }
 
+
     @Override
     public void onInit(int status) {
         if (status == TextToSpeech.SUCCESS) {
-            // Définir la langue pour le discours (dans cet exemple, anglais)
             int result = textToSpeech.setLanguage(Locale.US);
-
-            if (result == TextToSpeech.LANG_MISSING_DATA ||
-                    result == TextToSpeech.LANG_NOT_SUPPORTED) {
-
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TextToSpeech", "Language is not supported.");
             }
         } else {
-            float speechRate = 0.5f; // Vous pouvez ajuster cette valeur selon vos préférences
-            textToSpeech.setSpeechRate(speechRate);
+            Log.e("TextToSpeech", "Initialization failed.");
+            // Try reinitializing
+            textToSpeech = new TextToSpeech(this, this);
         }
     }
 
     private void speakOrientation(String orientation) {
-        // Utiliser le TextToSpeech pour lire l'orientation
-        textToSpeech.speak("" + orientation, TextToSpeech.QUEUE_FLUSH, null, null);
+        // Use the TextToSpeech to speak the orientation
+        textToSpeech.speak(orientation, TextToSpeech.QUEUE_FLUSH, null, null);
     }
+
 
     private void startSpeechTimer() {
         speechHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                // Appeler la fonction de synthèse vocale à chaque expiration de la minuterie
-                speakOrientation(getOrientationLabel(correctedDegree-300.0f));
-                // Programmer la prochaine exécution de la minuterie
+                // Call the function to speak orientation at each timer expiration
+                speakOrientation(getOrientationLabel(correctedDegree));
+                // Schedule the next execution of the timer
                 speechHandler.postDelayed(this, SPEECH_DELAY_MILLIS);
             }
         }, SPEECH_DELAY_MILLIS);
@@ -291,7 +309,7 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         boolean firstTime = settings.getBoolean(PREF_FIRST_TIME, true);
 
-        if (firstTime) {
+        //if (firstTime) {
             // Show the overlay layout
             showOverlay();
 
@@ -299,7 +317,7 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
             SharedPreferences.Editor editor = settings.edit();
             editor.putBoolean(PREF_FIRST_TIME, false);
             editor.apply();
-        }
+        //}
     }
 
     private void showOverlay() {
@@ -313,5 +331,10 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
             // Remove the overlay view when the close button is clicked
             rootView.removeView(overlayView);
         });
+    }
+
+    private boolean isOrientationInRange(float degree, float start, float end) {
+        // Check if the degree is in the specified range
+        return degree >= start && degree <= end;
     }
 }

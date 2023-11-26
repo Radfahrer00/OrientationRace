@@ -13,6 +13,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.example.orientationrace.databinding.ActivityGardenLocationBinding;
 
+/**
+ * Activity class for displaying the location of a garden on a map. Extends FragmentActivity and
+ * implements the OnMapReadyCallback to handle map-related functionality.
+ */
 public class GardenLocationActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -22,6 +26,14 @@ public class GardenLocationActivity extends FragmentActivity implements OnMapRea
 
     private GardenLocationViewModel gardenLocationViewModel;
 
+    /**
+     * Called when the activity is first created. Initializes the activity, sets the content view,
+     * and obtains the garden location coordinates from the Intent. Also configures the map to
+     * display the garden location.
+     *
+     * @param savedInstanceState A Bundle containing the activity's previously saved state,
+     *                           or null if there was no saved state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
