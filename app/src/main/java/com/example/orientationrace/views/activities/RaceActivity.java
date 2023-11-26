@@ -41,12 +41,24 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+/**
+ * The `RaceActivity` class represents the main activity of the Madrid Orientation Race application.
+ * It handles the race functionality, including compass orientation, displaying gardens, and interacting
+ * with MQTT messages for checkpoints.
+ *
+ * The activity integrates sensors for compass functionality, TextToSpeech for providing spoken
+ * orientation information, and MQTT for communication with the server regarding checkpoints.
+ *
+ * This class also includes functionality for displaying a tutorial overlay for first-time users.
+ *
+ */
 public class RaceActivity extends AppCompatActivity implements SensorEventListener, OnInitListener, MqttCallback {
 
+    // Constants for SharedPreferences
     private static final String PREFS_NAME = "MyPrefsFile";
     private static final String PREF_FIRST_TIME = "first_time";
 
-    // Configurations for the compass
+    // UI elements and configurations for the compass
     private ImageView compassImage;
     private SensorManager sensorManager;
     private Sensor accelerometer;
@@ -63,12 +75,13 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     // Text to Speech Accessibility
     private TextToSpeech textToSpeech;
 
+    // Delay for TextToSpeech
     private static final long SPEECH_DELAY_MILLIS = 2000; // Delay 2 seconds
     private Handler speechHandler;
 
     private float correctedDegree ;
 
-    // To see the current Location on the map
+    // Button for current location and availability flag
     private Button bCurrentLocation;
     private boolean isButtonAvailable;
 
@@ -79,48 +92,57 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
     ExecutorService mqttExecutor;
 
 
+    /**
+     * Called when the activity is first created. Initializes UI components, sensors, and MQTT connection.
+     *
+     * @param savedInstanceState A Bundle containing the activity's previously saved state,
+     *                           or null if there was no saved state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_race);
-        textToSpeech = new TextToSpeech(this, this);
-        speechHandler = new Handler();
-        startSpeechTimer();
 
         // Get references to UI elements
         compassImage = findViewById(R.id.compassImageView);
         bCurrentLocation = findViewById(R.id.buttonCurrentLocation);
 
+        // Display tutorial overlay for first-time users
         showTutorial();
 
-        // Receive the Gardens
+        // Receive garden data from the intent
         Garden[] gardens = (Garden[]) getIntent().getSerializableExtra("gardenNames");
 
+        // Add gardens to the dataset
         for (int i = 0; i < gardens.length; i++) {
             Garden garden = new Garden(gardens[i].getGardenName(), gardens[i].getLatitude (), gardens[i].getLongitude(), (long) i);
             gardensDataset.addGarden(garden);
         }
 
+        textToSpeech = new TextToSpeech(this, this);
+
         initRecyclerView();
 
+        // Initialize MQTT connection
         mqttExecutor = Executors.newSingleThreadExecutor();
         mqttManager = MqttManager.getInstance();
-
         subscribeToTopic();
 
         // Applying OnLongClickListener to our Adapter
         gardensAdapter.setOnLongClickListener();
-
         gardensAdapter.setOnItemClickListener();
-
 
         isButtonAvailable = true;
 
-        // Initialize the sensor manager
+        // Initialize the sensor manager and sensors
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
+        speechHandler = new Handler();
+        startSpeechTimer();
+
+        // Set an OnClickListener for the current location button
         bCurrentLocation.setOnClickListener(v -> {
             if (isButtonAvailable) {
                 startCurrentLocationActivity();
@@ -165,36 +187,62 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
         // Set the compass image rotation
         compassImage.setRotation(correctedDegree);
 
+        //getOrientationLabel(correctedDegree);
+
+    }
+
+    private String getOrientationLabel(float correctedDegree) {
         // Check orientation and speak
         if (isOrientationInRange(correctedDegree, 0.0f, 20.0f)) {
-            speakOrientation("Facing North");
+            //speakOrientation("North");
+            return "North";
         } else if (isOrientationInRange(correctedDegree, 70.0f, 110.0f)) {
-            speakOrientation("Facing East");
+            //speakOrientation("West");
+            return "West";
         } else if (isOrientationInRange(correctedDegree, 170.0f, 190.0f)) {
-            speakOrientation("Facing South");
+            //speakOrientation("South");
+            return "South";
         } else if (isOrientationInRange(correctedDegree, 250.0f, 290.0f)) {
-            speakOrientation("Facing West");
+            //speakOrientation("East");
+            return "East";
+        } else {
+            return "";
         }
+    }
 
+    @Override
+    public void onInit(int status) {
+        if (status == TextToSpeech.SUCCESS) {
+            int result = textToSpeech.setLanguage(Locale.US);
+
+            if (result == TextToSpeech.LANG_MISSING_DATA ||
+                    result == TextToSpeech.LANG_NOT_SUPPORTED) {
+
+            }
+        } else {
+            float speechRate = 0.5f;
+            textToSpeech.setSpeechRate(speechRate);
+        }
+    }
+
+    private void speakOrientation(String orientation) {
+        Log.i("TextToSpeech", "Speaking: " + orientation);
+        textToSpeech.speak("" + orientation, TextToSpeech.QUEUE_FLUSH, null, null);
+    }
+
+    private void startSpeechTimer() {
+        speechHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                speakOrientation(getOrientationLabel(correctedDegree));
+                speechHandler.postDelayed(this, SPEECH_DELAY_MILLIS);
+            }
+        }, SPEECH_DELAY_MILLIS);
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
 
-    }
-
-    private String getOrientationLabel(float degree) {
-        if (degree >= 0.0f && degree < 80.0f){
-            return "North";
-        }  else if (degree >= 90.0f && degree < 160.0f) {
-            return "East";
-        }  else if (degree >= 180.0f && degree < 260.0f) {
-            return "South";
-        }  else if (degree >= 280.0f && degree < 360.0f) {
-            return "West";
-        } else {
-            return "";
-        }
     }
 
     private void initRecyclerView() {
@@ -229,39 +277,6 @@ public class RaceActivity extends AppCompatActivity implements SensorEventListen
             bCurrentLocation.setEnabled(true);
             bCurrentLocation.setText("See current location");
         }, 2 * 10 * 1000); // 5 minutes in milliseconds
-    }
-
-
-    @Override
-    public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-            int result = textToSpeech.setLanguage(Locale.US);
-            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.e("TextToSpeech", "Language is not supported.");
-            }
-        } else {
-            Log.e("TextToSpeech", "Initialization failed.");
-            // Try reinitializing
-            textToSpeech = new TextToSpeech(this, this);
-        }
-    }
-
-    private void speakOrientation(String orientation) {
-        // Use the TextToSpeech to speak the orientation
-        textToSpeech.speak(orientation, TextToSpeech.QUEUE_FLUSH, null, null);
-    }
-
-
-    private void startSpeechTimer() {
-        speechHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // Call the function to speak orientation at each timer expiration
-                speakOrientation(getOrientationLabel(correctedDegree));
-                // Schedule the next execution of the timer
-                speechHandler.postDelayed(this, SPEECH_DELAY_MILLIS);
-            }
-        }, SPEECH_DELAY_MILLIS);
     }
 
     private void subscribeToTopic() {
