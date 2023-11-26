@@ -65,8 +65,8 @@ To get started with the Madrid Orientation Race App, follow these steps:
 
 ## Contributors
 
-- [Quentin Mathieu]
-- [Hichem Hassen]
+- Quentin Mathieu
+- Hichem Hassen
 
 ## Acknowledgments
 
